@@ -2,37 +2,95 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase-client'
-import { Alumno } from '@/types'
-import { Plus, Search, Edit2, Trash2, X } from 'lucide-react'
+import { Alumno, AlumnoInsert, AlumnoUpdate, FormErrors } from '@/types'
+import { Plus, Search, Edit2, Trash2, X, AlertCircle } from 'lucide-react'
+
+// Funciones de validación
+const validateAlumnoForm = (form: AlumnoInsert | AlumnoUpdate): FormErrors => {
+  const errors: FormErrors = {}
+  
+  if (!form.nombre || !form.nombre.trim()) {
+    errors.nombre = 'El nombre es requerido'
+  } else if (form.nombre.trim().length < 2) {
+    errors.nombre = 'El nombre debe tener al menos 2 caracteres'
+  }
+  
+  if (form.dni && form.dni.trim() && !/^\d{7,8}$/.test(form.dni.trim())) {
+    errors.dni = 'El DNI debe tener 7-8 dígitos'
+  }
+  
+  if (form.telefono && form.telefono.trim() && !/^[\d\s\-\+\(\)]{8,}$/.test(form.telefono.trim())) {
+    errors.telefono = 'Formato de teléfono inválido'
+  }
+  
+  if (form.email && form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+    errors.email = 'Formato de email inválido'
+  }
+  
+  return errors
+}
 
 export default function AlumnosPage() {
   const [alumnos, setAlumnos] = useState<Alumno[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [editing, setEditing] = useState<Alumno | null>(null)
   const supabase = createClient()
 
   const fetchAlumnos = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+    try {
+      setError(null)
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        setError('No hay usuario autenticado')
+        setLoading(false)
+        return
+      }
 
-    const { data } = await supabase
-      .from('alumnos')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('nombre')
+      const { data, error: supabaseError } = await supabase
+        .from('alumnos')
+        .select('id, user_id, nombre, dni, telefono, email, direccion, contacto_emergencia, medico, fecha_alta, estado, created_at, updated_at')
+        .eq('user_id', user.id)
+        .order('nombre')
 
-    setAlumnos(data || [])
-    setLoading(false)
+      if (supabaseError) {
+        console.error('Error fetching alumnos:', supabaseError)
+        setError(`Error al cargar alumnos: ${supabaseError.message}`)
+        setAlumnos([])
+      } else {
+        setAlumnos(data || [])
+      }
+    } catch (err) {
+      console.error('Unexpected error:', err)
+      setError('Error inesperado al cargar alumnos')
+      setAlumnos([])
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => { fetchAlumnos() }, [])
 
   const handleDelete = async (id: string) => {
     if (!confirm('¿Eliminar este alumno?')) return
-    await supabase.from('alumnos').delete().eq('id', id)
-    fetchAlumnos()
+    
+    try {
+      setError(null)
+      const { error: supabaseError } = await supabase.from('alumnos').delete().eq('id', id)
+      
+      if (supabaseError) {
+        console.error('Error deleting alumno:', supabaseError)
+        setError(`Error al eliminar: ${supabaseError.message}`)
+        return
+      }
+      
+      fetchAlumnos()
+    } catch (err) {
+      console.error('Unexpected error:', err)
+      setError('Error inesperado al eliminar alumno')
+    }
   }
 
   const filtered = alumnos.filter(a => a.nombre.toLowerCase().includes(search.toLowerCase()))
@@ -48,6 +106,13 @@ export default function AlumnosPage() {
           <Plus size={20} /> Nuevo Alumno
         </button>
       </div>
+
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700">
+          <AlertCircle size={20} />
+          <span>{error}</span>
+        </div>
+      )}
 
       <div className="bg-white rounded-xl shadow p-6">
         <div className="mb-4 relative">
@@ -117,7 +182,7 @@ export default function AlumnosPage() {
 }
 
 function AlumnoModal({ alumno, onClose, onSave }: { alumno: Alumno | null, onClose: () => void, onSave: () => void }) {
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<AlumnoInsert>({
     nombre: alumno?.nombre || '',
     dni: alumno?.dni || '',
     telefono: alumno?.telefono || '',
@@ -125,24 +190,92 @@ function AlumnoModal({ alumno, onClose, onSave }: { alumno: Alumno | null, onClo
     direccion: alumno?.direccion || '',
     contacto_emergencia: alumno?.contacto_emergencia || '',
     medico: alumno?.medico || '',
+    fecha_alta: alumno?.fecha_alta || new Date().toISOString().split('T')[0],
+    estado: alumno?.estado || 'activo',
   })
+  const [formErrors, setFormErrors] = useState<FormErrors>({})
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const supabase = createClient()
+
+  const handleChange = (field: keyof AlumnoInsert, value: string) => {
+    setForm(prev => ({ ...prev, [field]: value }))
+    if (formErrors[field]) {
+      setFormErrors(prev => ({ ...prev, [field]: '' }))
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-
-    if (alumno) {
-      await supabase.from('alumnos').update(form).eq('id', alumno.id)
-    } else {
-      await supabase.from('alumnos').insert({ ...form, user_id: user.id })
+    setError(null)
+    
+    // Validar formulario
+    const errors = validateAlumnoForm(form)
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors)
+      return
     }
-    setLoading(false)
-    onSave()
-    onClose()
+    
+    setLoading(true)
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        setError('No hay usuario autenticado')
+        setLoading(false)
+        return
+      }
+
+      if (alumno) {
+        const { error: supabaseError } = await supabase
+          .from('alumnos')
+          .update({
+            nombre: form.nombre.trim(),
+            dni: form.dni?.trim() || null,
+            telefono: form.telefono?.trim() || null,
+            email: form.email?.trim() || null,
+            direccion: form.direccion?.trim() || null,
+            contacto_emergencia: form.contacto_emergencia?.trim() || null,
+            medico: form.medico?.trim() || null,
+          })
+          .eq('id', alumno.id)
+          
+        if (supabaseError) {
+          console.error('Error updating alumno:', supabaseError)
+          setError(`Error al actualizar: ${supabaseError.message}`)
+          setLoading(false)
+          return
+        }
+      } else {
+        const { error: supabaseError } = await supabase
+          .from('alumnos')
+          .insert({
+            ...form,
+            user_id: user.id,
+            nombre: form.nombre.trim(),
+            dni: form.dni?.trim() || null,
+            telefono: form.telefono?.trim() || null,
+            email: form.email?.trim() || null,
+            direccion: form.direccion?.trim() || null,
+            contacto_emergencia: form.contacto_emergencia?.trim() || null,
+            medico: form.medico?.trim() || null,
+          })
+          
+        if (supabaseError) {
+          console.error('Error inserting alumno:', supabaseError)
+          setError(`Error al crear: ${supabaseError.message}`)
+          setLoading(false)
+          return
+        }
+      }
+      
+      onSave()
+      onClose()
+    } catch (err) {
+      console.error('Unexpected error:', err)
+      setError('Error inesperado al guardar')
+      setLoading(false)
+    }
   }
 
   return (
@@ -152,37 +285,93 @@ function AlumnoModal({ alumno, onClose, onSave }: { alumno: Alumno | null, onClo
           <h2 className="text-xl font-bold">{alumno ? 'Editar' : 'Nuevo'} Alumno</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700"><X size={24} /></button>
         </div>
+        
+        {error && (
+          <div className="mx-6 mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700 text-sm">
+            <AlertCircle size={16} />
+            <span>{error}</span>
+          </div>
+        )}
+        
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1">Nombre *</label>
-            <input type="text" value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} className="w-full px-4 py-2 border rounded-lg" required />
+            <input 
+              type="text" 
+              value={form.nombre} 
+              onChange={(e) => handleChange('nombre', e.target.value)} 
+              className={`w-full px-4 py-2 border rounded-lg ${formErrors.nombre ? 'border-red-500 focus:ring-red-500' : ''}`}
+            />
+            {formErrors.nombre && <p className="mt-1 text-sm text-red-600">{formErrors.nombre}</p>}
           </div>
+          
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">DNI</label>
-              <input type="text" value={form.dni} onChange={(e) => setForm({ ...form, dni: e.target.value })} className="w-full px-4 py-2 border rounded-lg" />
+              <input 
+                type="text" 
+                value={form.dni || ''} 
+                onChange={(e) => handleChange('dni', e.target.value)} 
+                className={`w-full px-4 py-2 border rounded-lg ${formErrors.dni ? 'border-red-500 focus:ring-red-500' : ''}`}
+                placeholder="12345678"
+              />
+              {formErrors.dni && <p className="mt-1 text-sm text-red-600">{formErrors.dni}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Teléfono</label>
-              <input type="text" value={form.telefono} onChange={(e) => setForm({ ...form, telefono: e.target.value })} className="w-full px-4 py-2 border rounded-lg" />
+              <input 
+                type="text" 
+                value={form.telefono || ''} 
+                onChange={(e) => handleChange('telefono', e.target.value)} 
+                className={`w-full px-4 py-2 border rounded-lg ${formErrors.telefono ? 'border-red-500 focus:ring-red-500' : ''}`}
+                placeholder="11 1234-5678"
+              />
+              {formErrors.telefono && <p className="mt-1 text-sm text-red-600">{formErrors.telefono}</p>}
             </div>
           </div>
+          
           <div>
             <label className="block text-sm font-medium mb-1">Email</label>
-            <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="w-full px-4 py-2 border rounded-lg" />
+            <input 
+              type="email" 
+              value={form.email || ''} 
+              onChange={(e) => handleChange('email', e.target.value)} 
+              className={`w-full px-4 py-2 border rounded-lg ${formErrors.email ? 'border-red-500 focus:ring-red-500' : ''}`}
+              placeholder="ejemplo@email.com"
+            />
+            {formErrors.email && <p className="mt-1 text-sm text-red-600">{formErrors.email}</p>}
           </div>
+          
           <div>
             <label className="block text-sm font-medium mb-1">Dirección</label>
-            <input type="text" value={form.direccion} onChange={(e) => setForm({ ...form, direccion: e.target.value })} className="w-full px-4 py-2 border rounded-lg" />
+            <input 
+              type="text" 
+              value={form.direccion || ''} 
+              onChange={(e) => handleChange('direccion', e.target.value)} 
+              className="w-full px-4 py-2 border rounded-lg" 
+            />
           </div>
+          
           <div>
             <label className="block text-sm font-medium mb-1">Contacto de Emergencia</label>
-            <input type="text" value={form.contacto_emergencia} onChange={(e) => setForm({ ...form, contacto_emergencia: e.target.value })} className="w-full px-4 py-2 border rounded-lg" />
+            <input 
+              type="text" 
+              value={form.contacto_emergencia || ''} 
+              onChange={(e) => handleChange('contacto_emergencia', e.target.value)} 
+              className="w-full px-4 py-2 border rounded-lg" 
+            />
           </div>
+          
           <div>
             <label className="block text-sm font-medium mb-1">Médico</label>
-            <input type="text" value={form.medico} onChange={(e) => setForm({ ...form, medico: e.target.value })} className="w-full px-4 py-2 border rounded-lg" />
+            <input 
+              type="text" 
+              value={form.medico || ''} 
+              onChange={(e) => handleChange('medico', e.target.value)} 
+              className="w-full px-4 py-2 border rounded-lg" 
+            />
           </div>
+          
           <div className="flex gap-3 pt-4">
             <button type="button" onClick={onClose} className="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50">Cancelar</button>
             <button type="submit" disabled={loading} className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">

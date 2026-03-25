@@ -2,40 +2,118 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase-client'
-import { Clase, Profesor } from '@/types'
-import { Plus, Search, Edit2, Trash2, X } from 'lucide-react'
+import { Clase, Profesor, ClaseInsert, FormErrors } from '@/types'
+import { Plus, Search, Edit2, Trash2, X, AlertCircle } from 'lucide-react'
 
 const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+
+// Funciones de validación
+const validateClaseForm = (form: ClaseInsert): FormErrors => {
+  const errors: FormErrors = {}
+  
+  if (!form.nombre || !form.nombre.trim()) {
+    errors.nombre = 'El nombre es requerido'
+  } else if (form.nombre.trim().length < 2) {
+    errors.nombre = 'El nombre debe tener al menos 2 caracteres'
+  }
+  
+  if (form.precio === undefined || form.precio === null) {
+    errors.precio = 'El precio es requerido'
+  } else if (form.precio < 0) {
+    errors.precio = 'El precio no puede ser negativo'
+  }
+  
+  if (form.cupos === undefined || form.cupos === null) {
+    errors.cupos = 'Los cupos son requeridos'
+  } else if (form.cupos < 1) {
+    errors.cupos = 'Debe haber al menos 1 cupo'
+  }
+  
+  return errors
+}
 
 export default function ClasesPage() {
   const [clases, setClases] = useState<Clase[]>([])
   const [profesores, setProfesores] = useState<Profesor[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [editing, setEditing] = useState<Clase | null>(null)
   const supabase = createClient()
 
   const fetchData = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+    try {
+      setError(null)
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        setError('No hay usuario autenticado')
+        setLoading(false)
+        return
+      }
 
-    const [clasesData, profesoresData] = await Promise.all([
-      supabase.from('clases').select('*, profesor:profesores(nombre)').eq('user_id', user.id).order('dia'),
-      supabase.from('profesores').select('*').eq('user_id', user.id).eq('estado', 'activo'),
-    ])
+      const { data: clasesData, error: clasesError } = await supabase
+        .from('clases')
+        .select('*, profesor:profesores(nombre)')
+        .eq('user_id', user.id)
+        .order('dia')
 
-    setClases(clasesData.data || [])
-    setProfesores(profesoresData.data || [])
-    setLoading(false)
+      const { data: profesoresData, error: profesoresError } = await supabase
+        .from('profesores')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('estado', 'activo')
+
+      if (clasesError) {
+        console.error('Error fetching clases:', clasesError)
+        setError(`Error al cargar clases: ${clasesError.message}`)
+        setClases([])
+      } else {
+        // Transformar el resultado para que profesor sea un objeto, no un array
+        const transformedClases = (clasesData || []).map((c: any) => ({
+          ...c,
+          profesor: c.profesor?.[0] || null
+        }))
+        setClases(transformedClases)
+      }
+
+      if (profesoresError) {
+        console.error('Error fetching profesores:', profesoresError)
+        setError(`Error al cargar profesores: ${profesoresError.message}`)
+        setProfesores([])
+      } else {
+        setProfesores(profesoresData || [])
+      }
+    } catch (err) {
+      console.error('Unexpected error:', err)
+      setError('Error inesperado al cargar datos')
+      setClases([])
+      setProfesores([])
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => { fetchData() }, [])
 
   const handleDelete = async (id: string) => {
     if (!confirm('¿Eliminar esta clase?')) return
-    await supabase.from('clases').delete().eq('id', id)
-    fetchData()
+    
+    try {
+      setError(null)
+      const { error: supabaseError } = await supabase.from('clases').delete().eq('id', id)
+      
+      if (supabaseError) {
+        console.error('Error deleting clase:', supabaseError)
+        setError(`Error al eliminar: ${supabaseError.message}`)
+        return
+      }
+      
+      fetchData()
+    } catch (err) {
+      console.error('Unexpected error:', err)
+      setError('Error inesperado al eliminar clase')
+    }
   }
 
   const filtered = clases.filter(c => c.nombre.toLowerCase().includes(search.toLowerCase()))
@@ -48,6 +126,13 @@ export default function ClasesPage() {
           <Plus size={20} /> Nueva Clase
         </button>
       </div>
+
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700">
+          <AlertCircle size={20} />
+          <span>{error}</span>
+        </div>
+      )}
 
       <div className="bg-white rounded-xl shadow p-6">
         <div className="mb-4 relative">
@@ -85,31 +170,92 @@ export default function ClasesPage() {
 }
 
 function ClaseModal({ clase, profesores, onClose, onSave }: { clase: Clase | null, profesores: Profesor[], onClose: () => void, onSave: () => void }) {
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<ClaseInsert>({
     nombre: clase?.nombre || '',
     dia: clase?.dia || 'Lunes',
     hora: clase?.hora || '09:00',
     profesor_id: clase?.profesor_id || '',
-    precio: clase?.precio || 0,
-    cupos: clase?.cupos || 20,
+    precio: clase?.precio ?? 0,
+    cupos: clase?.cupos ?? 20,
+    estado: clase?.estado || 'activa',
   })
+  const [formErrors, setFormErrors] = useState<FormErrors>({})
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const supabase = createClient()
+
+  const handleChange = (field: keyof ClaseInsert, value: string | number | null) => {
+    setForm(prev => ({ ...prev, [field]: value }))
+    if (formErrors[field]) {
+      setFormErrors(prev => ({ ...prev, [field]: '' }))
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-
-    if (clase) {
-      await supabase.from('clases').update(form).eq('id', clase.id)
-    } else {
-      await supabase.from('clases').insert({ ...form, user_id: user.id })
+    setError(null)
+    
+    // Validar formulario
+    const errors = validateClaseForm(form)
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors)
+      return
     }
-    setLoading(false)
-    onSave()
-    onClose()
+    
+    setLoading(true)
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        setError('No hay usuario autenticado')
+        setLoading(false)
+        return
+      }
+
+      if (clase) {
+        const { error: supabaseError } = await supabase
+          .from('clases')
+          .update({
+            nombre: form.nombre.trim(),
+            dia: form.dia,
+            hora: form.hora,
+            profesor_id: form.profesor_id || null,
+            precio: form.precio,
+            cupos: form.cupos,
+          })
+          .eq('id', clase.id)
+          
+        if (supabaseError) {
+          console.error('Error updating clase:', supabaseError)
+          setError(`Error al actualizar: ${supabaseError.message}`)
+          setLoading(false)
+          return
+        }
+      } else {
+        const { error: supabaseError } = await supabase
+          .from('clases')
+          .insert({
+            ...form,
+            user_id: user.id,
+            nombre: form.nombre.trim(),
+            profesor_id: form.profesor_id || null,
+          })
+          
+        if (supabaseError) {
+          console.error('Error inserting clase:', supabaseError)
+          setError(`Error al crear: ${supabaseError.message}`)
+          setLoading(false)
+          return
+        }
+      }
+      
+      onSave()
+      onClose()
+    } catch (err) {
+      console.error('Unexpected error:', err)
+      setError('Error inesperado al guardar')
+      setLoading(false)
+    }
   }
 
   return (
@@ -119,17 +265,74 @@ function ClaseModal({ clase, profesores, onClose, onSave }: { clase: Clase | nul
           <h2 className="text-xl font-bold">{clase ? 'Editar' : 'Nueva'} Clase</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700"><X size={24} /></button>
         </div>
+        
+        {error && (
+          <div className="mx-6 mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700 text-sm">
+            <AlertCircle size={16} />
+            <span>{error}</span>
+          </div>
+        )}
+        
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div><label className="block text-sm font-medium mb-1">Nombre *</label><input type="text" value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} className="w-full px-4 py-2 border rounded-lg" required /></div>
-          <div className="grid grid-cols-2 gap-4">
-            <div><label className="block text-sm font-medium mb-1">Día</label><select value={form.dia} onChange={(e) => setForm({ ...form, dia: e.target.value })} className="w-full px-4 py-2 border rounded-lg">{DIAS.map(d => <option key={d} value={d}>{d}</option>)}</select></div>
-            <div><label className="block text-sm font-medium mb-1">Hora</label><input type="time" value={form.hora} onChange={(e) => setForm({ ...form, hora: e.target.value })} className="w-full px-4 py-2 border rounded-lg" /></div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Nombre *</label>
+            <input 
+              type="text" 
+              value={form.nombre} 
+              onChange={(e) => handleChange('nombre', e.target.value)} 
+              className={`w-full px-4 py-2 border rounded-lg ${formErrors.nombre ? 'border-red-500 focus:ring-red-500' : ''}`}
+            />
+            {formErrors.nombre && <p className="mt-1 text-sm text-red-600">{formErrors.nombre}</p>}
           </div>
-          <div><label className="block text-sm font-medium mb-1">Profesor</label><select value={form.profesor_id} onChange={(e) => setForm({ ...form, profesor_id: e.target.value })} className="w-full px-4 py-2 border rounded-lg"><option value="">Seleccionar profesor</option>{profesores.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}</select></div>
+          
           <div className="grid grid-cols-2 gap-4">
-            <div><label className="block text-sm font-medium mb-1">Precio</label><input type="number" value={form.precio} onChange={(e) => setForm({ ...form, precio: Number(e.target.value) })} className="w-full px-4 py-2 border rounded-lg" /></div>
-            <div><label className="block text-sm font-medium mb-1">Cupos</label><input type="number" value={form.cupos} onChange={(e) => setForm({ ...form, cupos: Number(e.target.value) })} className="w-full px-4 py-2 border rounded-lg" /></div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Día</label>
+              <select value={form.dia} onChange={(e) => handleChange('dia', e.target.value)} className="w-full px-4 py-2 border rounded-lg">
+                {DIAS.map(d => <option key={d} value={d}>{d}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Hora</label>
+              <input type="time" value={form.hora} onChange={(e) => handleChange('hora', e.target.value)} className="w-full px-4 py-2 border rounded-lg" />
+            </div>
           </div>
+          
+          <div>
+            <label className="block text-sm font-medium mb-1">Profesor</label>
+            <select 
+              value={form.profesor_id || ''} 
+              onChange={(e) => handleChange('profesor_id', e.target.value || null)} 
+              className="w-full px-4 py-2 border rounded-lg"
+            >
+              <option value="">Seleccionar profesor</option>
+              {profesores.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+            </select>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Precio *</label>
+              <input 
+                type="number" 
+                value={form.precio} 
+                onChange={(e) => handleChange('precio', Number(e.target.value))} 
+                className={`w-full px-4 py-2 border rounded-lg ${formErrors.precio ? 'border-red-500 focus:ring-red-500' : ''}`}
+              />
+              {formErrors.precio && <p className="mt-1 text-sm text-red-600">{formErrors.precio}</p>}
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Cupos *</label>
+              <input 
+                type="number" 
+                value={form.cupos ?? 20} 
+                onChange={(e) => handleChange('cupos', e.target.value ? Number(e.target.value) : 20)} 
+                className={`w-full px-4 py-2 border rounded-lg ${formErrors.cupos ? 'border-red-500 focus:ring-red-500' : ''}`}
+              />
+              {formErrors.cupos && <p className="mt-1 text-sm text-red-600">{formErrors.cupos}</p>}
+            </div>
+          </div>
+          
           <div className="flex gap-3 pt-4">
             <button type="button" onClick={onClose} className="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50">Cancelar</button>
             <button type="submit" disabled={loading} className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">{loading ? 'Guardando...' : 'Guardar'}</button>

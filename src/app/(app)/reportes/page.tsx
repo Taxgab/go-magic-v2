@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase-client'
 import { Pago } from '@/types'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts'
+import { AlertCircle } from 'lucide-react'
 
 const METRICAS = [
   { name: 'Ene', ingresos: 0 }, { name: 'Feb', ingresos: 0 }, { name: 'Mar', ingresos: 0 },
@@ -17,15 +18,44 @@ const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'
 export default function ReportesPage() {
   const [pagos, setPagos] = useState<Pago[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const supabase = createClient()
 
   const fetchData = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+    try {
+      setError(null)
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        setError('No hay usuario autenticado')
+        setLoading(false)
+        return
+      }
 
-    const { data } = await supabase.from('pagos').select('*, alumno:alumnos(nombre)').eq('user_id', user.id).eq('estado', 'pagado')
-    setPagos(data || [])
-    setLoading(false)
+      const { data, error: supabaseError } = await supabase
+        .from('pagos')
+        .select('*, alumno:alumnos(nombre)')
+        .eq('user_id', user.id)
+        .eq('estado', 'pagado')
+
+      if (supabaseError) {
+        console.error('Error fetching pagos:', supabaseError)
+        setError(`Error al cargar pagos: ${supabaseError.message}`)
+        setPagos([])
+      } else {
+        // Transformar el resultado para que alumno sea un objeto, no un array
+        const transformedPagos = (data || []).map((p: any) => ({
+          ...p,
+          alumno: p.alumno?.[0] || null
+        }))
+        setPagos(transformedPagos)
+      }
+    } catch (err) {
+      console.error('Unexpected error:', err)
+      setError('Error inesperado al cargar pagos')
+      setPagos([])
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => { fetchData() }, [])
@@ -51,6 +81,13 @@ export default function ReportesPage() {
   return (
     <div>
       <h1 className="text-3xl font-bold text-gray-900 mb-6">Reportes</h1>
+
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700">
+          <AlertCircle size={20} />
+          <span>{error}</span>
+        </div>
+      )}
 
       {loading ? <p className="text-center text-gray-500 py-8">Cargando...</p> : (
         <>
