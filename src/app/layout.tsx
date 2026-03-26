@@ -13,7 +13,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body className="antialiased">
+        {/* Noise texture overlay for industrial feel */}
+        <div className="noise-overlay" aria-hidden="true" />
+        {children}
+      </body>
     </html>
   )
 }
