@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Analytics } from '@vercel/analytics/next'
 import { QueryProvider } from '@/providers/QueryProvider'
 import './globals.css'
 
@@ -20,6 +21,7 @@ export default function RootLayout({
           <div className="noise-overlay" aria-hidden="true" />
           {children}
         </QueryProvider>
+        <Analytics />
       </body>
     </html>
   )
