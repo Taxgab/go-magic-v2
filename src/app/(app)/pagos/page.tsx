@@ -349,7 +349,7 @@ function PagoModal({ pago, alumnos, onClose, onSave }: { pago: Pago | null, alum
         
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Alumno *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Alumno *</label>
             <select 
               value={form.alumno_id} 
               onChange={(e) => handleChange('alumno_id', e.target.value)} 
@@ -362,7 +362,7 @@ function PagoModal({ pago, alumnos, onClose, onSave }: { pago: Pago | null, alum
           </div>
           
           <div>
-            <label className="block text-sm font-medium mb-1">Concepto *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Concepto *</label>
             <input 
               type="text" 
               value={form.concepto} 
@@ -375,7 +375,7 @@ function PagoModal({ pago, alumnos, onClose, onSave }: { pago: Pago | null, alum
           
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Monto *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Monto *</label>
               <input 
                 type="number" 
                 value={form.monto} 
@@ -385,11 +385,11 @@ function PagoModal({ pago, alumnos, onClose, onSave }: { pago: Pago | null, alum
               {formErrors.monto && <p className="mt-1 text-sm text-red-600">{formErrors.monto}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Método</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Método</label>
               <select 
                 value={form.metodo} 
                 onChange={(e) => handleChange('metodo', e.target.value as MetodoPago)} 
-                className="w-full px-4 py-2 border rounded-lg"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white"
               >
                 <option value="efectivo">Efectivo</option>
                 <option value="transferencia">Transferencia</option>
@@ -401,7 +401,7 @@ function PagoModal({ pago, alumnos, onClose, onSave }: { pago: Pago | null, alum
           
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Fecha</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
               <input 
                 type="date" 
                 value={form.fecha_pago} 
@@ -411,11 +411,11 @@ function PagoModal({ pago, alumnos, onClose, onSave }: { pago: Pago | null, alum
               {formErrors.fecha_pago && <p className="mt-1 text-sm text-red-600">{formErrors.fecha_pago}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Estado</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
               <select 
                 value={form.estado} 
                 onChange={(e) => handleChange('estado', e.target.value as PagoEstado)} 
-                className="w-full px-4 py-2 border rounded-lg"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white"
               >
                 <option value="pagado">Pagado</option>
                 <option value="pendiente">Pendiente</option>

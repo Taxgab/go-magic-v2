@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { QueryProvider } from '@/providers/QueryProvider'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -14,9 +15,11 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className="antialiased">
-        {/* Noise texture overlay for industrial feel */}
-        <div className="noise-overlay" aria-hidden="true" />
-        {children}
+        <QueryProvider>
+          {/* Noise texture overlay for industrial feel */}
+          <div className="noise-overlay" aria-hidden="true" />
+          {children}
+        </QueryProvider>
       </body>
     </html>
   )

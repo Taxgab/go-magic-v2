@@ -275,7 +275,7 @@ function ClaseModal({ clase, profesores, onClose, onSave }: { clase: Clase | nul
         
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Nombre *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
             <input 
               type="text" 
               value={form.nombre} 
@@ -287,23 +287,23 @@ function ClaseModal({ clase, profesores, onClose, onSave }: { clase: Clase | nul
           
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Día</label>
-              <select value={form.dia} onChange={(e) => handleChange('dia', e.target.value)} className="w-full px-4 py-2 border rounded-lg">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Día</label>
+              <select value={form.dia} onChange={(e) => handleChange('dia', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white">
                 {DIAS.map(d => <option key={d} value={d}>{d}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Hora</label>
-              <input type="time" value={form.hora} onChange={(e) => handleChange('hora', e.target.value)} className="w-full px-4 py-2 border rounded-lg" />
+              <label className="block text-sm font-medium text-gray-700 mb-1">Hora</label>
+              <input type="time" value={form.hora} onChange={(e) => handleChange('hora', e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white" />
             </div>
           </div>
           
           <div>
-            <label className="block text-sm font-medium mb-1">Profesor</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Profesor</label>
             <select 
               value={form.profesor_id || ''} 
               onChange={(e) => handleChange('profesor_id', e.target.value || null)} 
-              className="w-full px-4 py-2 border rounded-lg"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white"
             >
               <option value="">Seleccionar profesor</option>
               {profesores.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
@@ -312,7 +312,7 @@ function ClaseModal({ clase, profesores, onClose, onSave }: { clase: Clase | nul
           
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Precio *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Precio *</label>
               <input 
                 type="number" 
                 value={form.precio} 
@@ -322,7 +322,7 @@ function ClaseModal({ clase, profesores, onClose, onSave }: { clase: Clase | nul
               {formErrors.precio && <p className="mt-1 text-sm text-red-600">{formErrors.precio}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Cupos *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Cupos *</label>
               <input 
                 type="number" 
                 value={form.cupos ?? 20} 

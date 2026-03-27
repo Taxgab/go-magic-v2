@@ -264,9 +264,9 @@ function ProfesorModal({ profesor, onClose, onSave }: { profesor: Profesor | nul
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto text-gray-900">
         <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-bold">{profesor ? 'Editar' : 'Nuevo'} Profesor</h2>
+          <h2 className="text-xl font-bold text-gray-900">{profesor ? 'Editar' : 'Nuevo'} Profesor</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700"><X size={24} /></button>
         </div>
         
@@ -279,46 +279,46 @@ function ProfesorModal({ profesor, onClose, onSave }: { profesor: Profesor | nul
         
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Nombre *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
             <input 
               type="text" 
               value={form.nombre} 
               onChange={(e) => handleChange('nombre', e.target.value)} 
-              className={`w-full px-4 py-2 border rounded-lg ${formErrors.nombre ? 'border-red-500 focus:ring-red-500' : ''}`}
+              className={`w-full px-4 py-2 border rounded-lg text-gray-900 ${formErrors.nombre ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'}`}
             />
             {formErrors.nombre && <p className="mt-1 text-sm text-red-600">{formErrors.nombre}</p>}
           </div>
           
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Especialidad</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Especialidad</label>
               <input 
                 type="text" 
                 value={form.especialidad || ''} 
                 onChange={(e) => handleChange('especialidad', e.target.value)} 
-                className="w-full px-4 py-2 border rounded-lg" 
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900" 
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">% Comisión *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">% Comisión *</label>
               <input 
                 type="number" 
                 step="0.01" 
                 value={form.porcentaje_comision} 
                 onChange={(e) => handleChange('porcentaje_comision', Number(e.target.value))} 
-                className={`w-full px-4 py-2 border rounded-lg ${formErrors.porcentaje_comision ? 'border-red-500 focus:ring-red-500' : ''}`}
+                className={`w-full px-4 py-2 border rounded-lg text-gray-900 ${formErrors.porcentaje_comision ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'}`}
               />
               {formErrors.porcentaje_comision && <p className="mt-1 text-sm text-red-600">{formErrors.porcentaje_comision}</p>}
             </div>
           </div>
           
           <div>
-            <label className="block text-sm font-medium mb-1">CBU/CVU</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">CBU/CVU</label>
             <input 
               type="text" 
               value={form.cbu || ''} 
               onChange={(e) => handleChange('cbu', e.target.value)} 
-              className={`w-full px-4 py-2 border rounded-lg ${formErrors.cbu ? 'border-red-500 focus:ring-red-500' : ''}`}
+              className={`w-full px-4 py-2 border rounded-lg text-gray-900 ${formErrors.cbu ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'}`}
               placeholder="22 dígitos"
             />
             {formErrors.cbu && <p className="mt-1 text-sm text-red-600">{formErrors.cbu}</p>}
@@ -326,23 +326,23 @@ function ProfesorModal({ profesor, onClose, onSave }: { profesor: Profesor | nul
           
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Teléfono</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
               <input 
                 type="text" 
                 value={form.telefono || ''} 
                 onChange={(e) => handleChange('telefono', e.target.value)} 
-                className={`w-full px-4 py-2 border rounded-lg ${formErrors.telefono ? 'border-red-500 focus:ring-red-500' : ''}`}
+                className={`w-full px-4 py-2 border rounded-lg text-gray-900 ${formErrors.telefono ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'}`}
                 placeholder="11 1234-5678"
               />
               {formErrors.telefono && <p className="mt-1 text-sm text-red-600">{formErrors.telefono}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Email</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
               <input 
                 type="email" 
                 value={form.email || ''} 
                 onChange={(e) => handleChange('email', e.target.value)} 
-                className={`w-full px-4 py-2 border rounded-lg ${formErrors.email ? 'border-red-500 focus:ring-red-500' : ''}`}
+                className={`w-full px-4 py-2 border rounded-lg text-gray-900 ${formErrors.email ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'}`}
                 placeholder="ejemplo@email.com"
               />
               {formErrors.email && <p className="mt-1 text-sm text-red-600">{formErrors.email}</p>}
@@ -350,7 +350,7 @@ function ProfesorModal({ profesor, onClose, onSave }: { profesor: Profesor | nul
           </div>
           
           <div className="flex gap-3 pt-4">
-            <button type="button" onClick={onClose} className="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50">Cancelar</button>
+            <button type="button" onClick={onClose} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700">Cancelar</button>
             <button type="submit" disabled={loading} className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">{loading ? 'Guardando...' : 'Guardar'}</button>
           </div>
         </form>

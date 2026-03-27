@@ -182,12 +182,12 @@ export default function ConfiguracionPage() {
           <div>
             <h2 className="text-lg font-semibold mb-4">Datos del Gimnasio</h2>
             <div>
-              <label className="block text-sm font-medium mb-1">Nombre del Gimnasio *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Nombre del Gimnasio *</label>
               <input 
                 type="text" 
                 value={form.nombre_gym} 
                 onChange={(e) => handleChange('nombre_gym', e.target.value)} 
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 ${formErrors.nombre_gym ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
+                className={`w-full px-4 py-2 border text-gray-900 bg-white rounded-lg focus:ring-2 ${formErrors.nombre_gym ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
               />
               {formErrors.nombre_gym && <p className="mt-1 text-sm text-red-600">{formErrors.nombre_gym}</p>}
             </div>
@@ -197,21 +197,21 @@ export default function ConfiguracionPage() {
             <h2 className="text-lg font-semibold mb-4">Configuración de Cuotas</h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Cuota Social *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Cuota Social *</label>
                 <input 
                   type="number" 
                   value={form.cuota_social} 
                   onChange={(e) => handleChange('cuota_social', Number(e.target.value))} 
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 ${formErrors.cuota_social ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
+                  className={`w-full px-4 py-2 border text-gray-900 bg-white rounded-lg focus:ring-2 ${formErrors.cuota_social ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
                 />
                 {formErrors.cuota_social && <p className="mt-1 text-sm text-red-600">{formErrors.cuota_social}</p>}
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Moneda *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Moneda *</label>
                 <select 
                   value={form.moneda} 
                   onChange={(e) => handleChange('moneda', e.target.value as Moneda)} 
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 ${formErrors.moneda ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
+                  className={`w-full px-4 py-2 border text-gray-900 bg-white rounded-lg focus:ring-2 ${formErrors.moneda ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
                 >
                   <option value="ARS">ARS - Peso Argentino</option>
                   <option value="USD">USD - Dólar</option>
