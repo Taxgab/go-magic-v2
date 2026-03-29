@@ -88,6 +88,32 @@ export default function NotificacionesPage() {
 
   useEffect(() => {
     fetchData()
+
+    // Suscribirse a cambios en asistencias en tiempo real
+    const channel = supabase
+      .channel('asistencias-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'asistencias',
+          filter: `fecha_clase=eq.${todayISO}`,
+        },
+        payload => {
+          console.log('Asistencia actualizada:', payload)
+          fetchData()
+        }
+      )
+      .subscribe()
+
+    // Refrescar cada 10 segundos como respaldo
+    const interval = setInterval(fetchData, 10000)
+
+    return () => {
+      supabase.removeChannel(channel)
+      clearInterval(interval)
+    }
   }, [fetchData])
 
   useEffect(() => {
