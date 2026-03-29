@@ -2,296 +2,410 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import Bebas Neue for bold headlines */
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Industrial Brutalist Fitness Color Palette */
-  --void-black: #0a0a0a;
-  --charcoal: #141414;
-  --dark-metal: #1a1a1a;
-  --graphite: #2a2a2a;
-  --concrete: #404040;
-  --ash: #737373;
-  --smoke: #a3a3a3;
-  
-  --energy-orange: #ff4500;
-  --energy-orange-glow: #ff6b35;
-  --toxic-yellow: #ccff00;
-  
-  --gym-white: #fafafa;
-  --pure-white: #ffffff;
-  
-  /* Semantic colors */
-  --bg-primary: var(--void-black);
-  --bg-secondary: var(--charcoal);
-  --bg-tertiary: var(--dark-metal);
-  
-  --text-primary: var(--gym-white);
-  --text-secondary: var(--smoke);
-  --text-muted: var(--ash);
-  
-  --accent-primary: var(--energy-orange);
-  --accent-secondary: var(--toxic-yellow);
-  
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.15);
+  /* Ethereal Athlete Color Palette */
+  --color-primary: #6d548c;
+  --color-primary-container: #dbbdfd;
+  --color-secondary: #4b664a;
+  --color-secondary-container: #dbe6db;
+  --color-tertiary: #a53d12;
+  --color-tertiary-container: #fdf0eb;
+
+  --color-surface: #fbf9f5;
+  --color-surface-low: #f5f2ed;
+  --color-surface-lowest: #ffffff;
+  --color-surface-high: #efebe6;
+  --color-surface-highest: #e8e4de;
+
+  --color-on-surface: #31332f;
+  --color-on-surface-variant: #5c5c58;
+  --color-outline-variant: #b2b2ad;
+
+  --color-success: #4b664a;
+  --color-error: #ba1a1a;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
 }
 
 @layer base {
   html {
     scroll-behavior: smooth;
   }
-  
+
   body {
-    font-family: 'Inter', system-ui, sans-serif;
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background-color: var(--color-surface);
+    color: var(--color-on-surface);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-  
-  /* Typography System */
-  .font-display {
-    font-family: 'Bebas Neue', sans-serif;
-    letter-spacing: 0.02em;
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Noto Serif', Georgia, serif;
+    font-weight: 500;
+    letter-spacing: -0.02em;
   }
-  
-  .font-mono {
-    font-family: 'JetBrains Mono', monospace;
-  }
-  
-  /* Selection */
+
   ::selection {
-    background: var(--energy-orange);
-    color: var(--void-black);
+    background: var(--color-primary);
+    color: white;
   }
-  
-  /* Scrollbar */
+
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
-  
+
   ::-webkit-scrollbar-track {
-    background: var(--charcoal);
+    background: var(--color-surface-low);
   }
-  
+
   ::-webkit-scrollbar-thumb {
-    background: var(--graphite);
-    border-radius: 0;
+    background: var(--color-outline-variant);
+    border-radius: 4px;
   }
-  
+
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--concrete);
+    background: var(--color-on-surface-variant);
   }
 }
 
 @layer components {
-  /* Card Component - Raw industrial look */
-  .gym-card {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-subtle);
+  /* Glassmorphism - for floating headers/nav */
+  .glass {
+    background: rgba(251, 249, 245, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  /* Primary Button - Gradient with full roundness */
+  .btn-primary {
+    background: linear-gradient(135deg, #6d548c 0%, #dbbdfd 100%);
+    color: white;
+    font-weight: 600;
+    border: none;
+    border-radius: 9999px;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
   }
-  
-  .gym-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      var(--border-strong),
-      transparent
-    );
+
+  .btn-primary:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 24px rgba(109, 84, 140, 0.25);
   }
-  
-  /* Button Variants */
-  .btn-primary {
-    background: var(--energy-orange);
-    color: var(--void-black);
+
+  .btn-primary:active {
+    transform: scale(0.98);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Secondary Button - Ghost with subtle border */
+  .btn-secondary {
+    background: transparent;
+    color: var(--color-on-surface);
+    border: 1px solid rgba(178, 178, 173, 0.15);
+    border-radius: 9999px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .btn-secondary:hover {
+    background: var(--color-surface-low);
+    border-color: var(--color-outline-variant);
+    transform: scale(1.02);
+  }
+
+  /* Card Component - No borders, tonal layering */
+  .card {
+    background: var(--color-surface-lowest);
+    border-radius: 2rem;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+  }
+
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px rgba(49, 51, 47, 0.06);
+  }
+
+  /* Input Fields */
+  .input-field {
+    background: var(--color-surface-highest);
+    border: none;
+    border-radius: 1.5rem;
+    padding: 0.875rem 1.25rem;
+    color: var(--color-on-surface);
+    transition: all 0.2s ease;
+    width: 100%;
+  }
+
+  .input-field:focus {
+    outline: none;
+    background: var(--color-surface-lowest);
+    box-shadow: 0 0 0 2px var(--color-primary);
+  }
+
+  .input-field::placeholder {
+    color: var(--color-on-surface-variant);
+  }
+
+  /* Labels */
+  .label {
+    font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    border: none;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.2s ease;
+    color: var(--color-on-surface-variant);
+    margin-bottom: 0.25rem;
+    display: block;
   }
-  
-  .btn-primary:hover {
-    background: var(--energy-orange-glow);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 20px rgba(255, 69, 0, 0.3);
-  }
-  
-  .btn-primary:active {
-    transform: translateY(0);
-  }
-  
-  .btn-secondary {
-    background: transparent;
-    color: var(--text-primary);
-    border: 1px solid var(--border-strong);
-    font-weight: 500;
-    transition: all 0.2s ease;
-  }
-  
-  .btn-secondary:hover {
-    border-color: var(--energy-orange);
-    color: var(--energy-orange);
-  }
-  
-  .btn-ghost {
-    background: transparent;
-    color: var(--text-secondary);
-    transition: color 0.2s ease;
-  }
-  
-  .btn-ghost:hover {
-    color: var(--text-primary);
-  }
-  
-  /* Input Fields */
-  .gym-input {
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-subtle);
-    color: var(--text-primary);
-    transition: all 0.2s ease;
-  }
-  
-  .gym-input:focus {
-    outline: none;
-    border-color: var(--energy-orange);
-    box-shadow: 0 0 0 2px rgba(255, 69, 0, 0.1);
-  }
-  
-  .gym-input::placeholder {
-    color: var(--text-muted);
-  }
-  
-  /* Stats Display - Scoreboard style */
-  .stat-value {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 3rem;
-    line-height: 1;
-    color: var(--text-primary);
-  }
-  
-  .stat-value.accent {
-    color: var(--energy-orange);
-  }
-  
-  /* Navigation Active State */
-  .nav-active {
-    background: var(--bg-tertiary);
-    border-left: 3px solid var(--energy-orange);
-    color: var(--text-primary);
-  }
-  
-  /* Table Styles */
-  .gym-table th {
-    font-family: 'JetBrains Mono', monospace;
+
+  /* Chip/Tag Component */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.375rem 0.875rem;
+    border-radius: 9999px;
     font-size: 0.75rem;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--text-muted);
-    border-bottom: 1px solid var(--border-subtle);
+    letter-spacing: 0.05em;
   }
-  
-  .gym-table td {
-    border-bottom: 1px solid var(--border-subtle);
+
+  .chip-secondary {
+    background: var(--color-secondary-container);
+    color: var(--color-secondary);
   }
-  
-  .gym-table tr:hover td {
-    background: rgba(255, 69, 0, 0.02);
+
+  .chip-tertiary {
+    background: var(--color-tertiary-container);
+    color: var(--color-tertiary);
   }
-  
-  /* Badges */
-  .badge {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.625rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0;
+
+  .chip-primary {
+    background: rgba(109, 84, 140, 0.1);
+    color: var(--color-primary);
   }
-  
+
+  /* Status Badges */
   .badge-success {
-    background: rgba(204, 255, 0, 0.1);
-    color: var(--toxic-yellow);
-    border: 1px solid rgba(204, 255, 0, 0.3);
+    background: var(--color-secondary-container);
+    color: var(--color-secondary);
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
   }
-  
+
   .badge-warning {
-    background: rgba(255, 69, 0, 0.1);
-    color: var(--energy-orange);
-    border: 1px solid rgba(255, 69, 0, 0.3);
+    background: var(--color-tertiary-container);
+    color: var(--color-tertiary);
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
   }
-  
+
   .badge-neutral {
-    background: var(--bg-tertiary);
-    color: var(--text-muted);
-    border: 1px solid var(--border-subtle);
+    background: var(--color-surface-low);
+    color: var(--color-on-surface-variant);
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
   }
-  
-  /* Noise texture overlay */
-  .noise-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
+
+  /* Page Section - Tonal layering */
+  .section-surface {
+    background: var(--color-surface);
+  }
+
+  .section-surface-low {
+    background: var(--color-surface-low);
+  }
+
+  /* Table Styles - No dividers */
+  .data-table {
     width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 9999;
-    opacity: 0.03;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    border-collapse: separate;
+    border-spacing: 0;
   }
-  
-  /* Loading state */
-  .loading-pulse {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  .data-table th {
+    text-align: left;
+    padding: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-on-surface-variant);
+    background: var(--color-surface-low);
   }
-  
-  @keyframes pulse {
-    0%, 100% {
-      opacity: 1;
+
+  .data-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-surface-high);
+  }
+
+  .data-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .data-table tbody tr {
+    transition: background 0.2s ease;
+  }
+
+  .data-table tbody tr:hover {
+    background: var(--color-surface-low);
+  }
+
+  /* Page Header */
+  .page-header {
+    margin-bottom: 2rem;
+  }
+
+  .page-title {
+    font-size: 2rem;
+    font-weight: 500;
+    color: var(--color-on-surface);
+    margin-bottom: 0.5rem;
+  }
+
+  /* Loading State */
+  .loading-skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--color-surface-low) 25%,
+      var(--color-surface) 50%,
+      var(--color-surface-low) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 1rem;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: 200% 0;
     }
-    50% {
-      opacity: .5;
+    100% {
+      background-position: -200% 0;
     }
   }
-  
-  /* Glow effect */
-  .glow-orange {
-    box-shadow: 0 0 20px rgba(255, 69, 0, 0.3);
+
+  /* Modal Overlay */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(49, 51, 47, 0.3);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 1rem;
   }
-  
-  /* Grid pattern background */
-  .grid-pattern {
-    background-image: 
-      linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-    background-size: 50px 50px;
+
+  .modal-content {
+    background: var(--color-surface-lowest);
+    border-radius: 2rem;
+    padding: 2rem;
+    max-width: 32rem;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(49, 51, 47, 0.1);
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--color-on-surface-variant);
+  }
+
+  /* Stat Card */
+  .stat-card {
+    background: var(--color-surface-lowest);
+    border-radius: 2rem;
+    padding: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .stat-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .stat-icon-primary {
+    background: rgba(109, 84, 140, 0.1);
+    color: var(--color-primary);
+  }
+
+  .stat-icon-secondary {
+    background: var(--color-secondary-container);
+    color: var(--color-secondary);
+  }
+
+  .stat-icon-tertiary {
+    background: var(--color-tertiary-container);
+    color: var(--color-tertiary);
+  }
+
+  .stat-value {
+    font-family: 'Noto Serif', Georgia, serif;
+    font-size: 2rem;
+    font-weight: 500;
+    color: var(--color-on-surface);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.875rem;
+    color: var(--color-on-surface-variant);
+    margin-top: 0.25rem;
   }
 }
 
 @layer utilities {
-  .text-gradient {
-    background: linear-gradient(135deg, var(--energy-orange) 0%, var(--energy-orange-glow) 100%);
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Gradient text for hero */
+  .text-gradient-editorial {
+    background: linear-gradient(135deg, #6d548c 0%, #a53d12 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-  }
-  
-  .border-gradient {
-    border: 1px solid transparent;
-    background: linear-gradient(var(--bg-secondary), var(--bg-secondary)) padding-box,
-                linear-gradient(135deg, var(--energy-orange), var(--toxic-yellow)) border-box;
   }
 }

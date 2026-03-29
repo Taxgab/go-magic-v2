@@ -54,10 +54,15 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   const isAuthPage = request.nextUrl.pathname.startsWith('/login')
-  const isPublicPage = request.nextUrl.pathname === '/'
+  const isPublicPage =
+    request.nextUrl.pathname === '/' ||
+    request.nextUrl.pathname === '/asistencia' ||
+    request.nextUrl.pathname.startsWith('/api/asistencia')
   const isPrivatePage = !isAuthPage && !isPublicPage
 
   if (!user && isPrivatePage) {

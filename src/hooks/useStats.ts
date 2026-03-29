@@ -1,5 +1,4 @@
 import { fetchDashboardStats, DashboardStats } from '@/api/stats'
-import { createClient } from '@/lib/supabase-server'
 
 /**
  * Hook server-side para obtener estadísticas del dashboard

@@ -47,11 +47,16 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0a0a0a] relative overflow-hidden flex items-center justify-center">
+    <main className="min-h-screen bg-surface relative overflow-hidden flex items-center justify-center">
       {/* Background effects */}
-      <div className="absolute inset-0 grid-pattern opacity-30" />
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#ff4500]/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#ff4500]/5 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
+      <div
+        className="absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2331332f' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+        }}
+      />
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[150px] -translate-y-1/3 translate-x-1/3" />
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-tertiary/5 rounded-full blur-[120px] translate-y-1/3 -translate-x-1/3" />
 
       <div className="relative z-10 w-full max-w-md px-6">
         {/* Logo */}
@@ -62,10 +67,10 @@ export default function LoginPage() {
           className="text-center mb-8"
         >
           <Link href="/" className="inline-flex items-center gap-3">
-            <div className="w-12 h-12 bg-[#ff4500] flex items-center justify-center">
-              <Dumbbell className="w-6 h-6 text-black" />
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center">
+              <Dumbbell className="w-6 h-6 text-white" />
             </div>
-            <span className="font-display text-2xl tracking-wider text-white">GO MAGIC GYM</span>
+            <span className="font-serif text-2xl tracking-tight text-on-surface">Go Magic Gym</span>
           </Link>
         </motion.div>
 
@@ -74,54 +79,50 @@ export default function LoginPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="bg-[#141414] border border-white/[0.08] relative"
+          className="bg-surface-lowest rounded-3xl shadow-ambient relative"
         >
           {/* Decorative corners */}
-          <div className="absolute -top-px -left-px w-6 h-6 border-t-2 border-l-2 border-[#ff4500]" />
-          <div className="absolute -top-px -right-px w-6 h-6 border-t-2 border-r-2 border-[#ff4500]" />
-          <div className="absolute -bottom-px -left-px w-6 h-6 border-b-2 border-l-2 border-[#ff4500]" />
-          <div className="absolute -bottom-px -right-px w-6 h-6 border-b-2 border-r-2 border-[#ff4500]" />
+          <div className="absolute -top-px -left-px w-8 h-8 border-t-4 border-l-4 border-primary rounded-tl-3xl" />
+          <div className="absolute -top-px -right-px w-8 h-8 border-t-4 border-r-4 border-primary rounded-tr-3xl" />
+          <div className="absolute -bottom-px -left-px w-8 h-8 border-b-4 border-l-4 border-tertiary rounded-bl-3xl" />
+          <div className="absolute -bottom-px -right-px w-8 h-8 border-b-4 border-r-4 border-tertiary rounded-br-3xl" />
 
           <div className="p-8">
-            <h1 className="font-display text-3xl text-white text-center mb-2">
-              {isSignup ? 'CREAR CUENTA' : 'INICIAR SESIÓN'}
+            <h1 className="font-serif text-3xl text-on-surface text-center mb-2">
+              {isSignup ? 'Crear Cuenta' : 'Iniciar Sesión'}
             </h1>
-            <p className="text-white/50 text-center text-sm mb-8 font-mono uppercase tracking-wider">
+            <p className="text-on-surface-variant text-center text-sm mb-8">
               {isSignup ? 'Regístrate para comenzar' : 'Ingresa tus credenciales'}
             </p>
 
             {error && (
-              <div className="mb-6 p-4 bg-[#ff4500]/10 border border-[#ff4500]/30 flex items-center gap-3">
-                <AlertCircle className="w-5 h-5 text-[#ff4500] flex-shrink-0" />
-                <p className="text-sm text-[#ff4500]">{error}</p>
+              <div className="mb-6 p-4 bg-tertiary/10 border border-tertiary/20 rounded-2xl flex items-center gap-3">
+                <AlertCircle className="w-5 h-5 text-tertiary flex-shrink-0" />
+                <p className="text-sm text-tertiary">{error}</p>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-xs font-mono text-white/60 uppercase tracking-wider mb-2">
-                  Email
-                </label>
+                <label className="label">Email</label>
                 <input
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 bg-[#1a1a1a] border border-white/[0.08] text-white placeholder-white/30 focus:outline-none focus:border-[#ff4500] transition-colors"
+                  onChange={e => setEmail(e.target.value)}
+                  className="input-field"
                   placeholder="tu@email.com"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono text-white/60 uppercase tracking-wider mb-2">
-                  Contraseña
-                </label>
+                <label className="label">Contraseña</label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 bg-[#1a1a1a] border border-white/[0.08] text-white placeholder-white/30 focus:outline-none focus:border-[#ff4500] transition-colors pr-12"
+                    onChange={e => setPassword(e.target.value)}
+                    className="input-field pr-12"
                     placeholder="••••••••"
                     required
                     minLength={6}
@@ -129,7 +130,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface transition-colors"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -139,26 +140,26 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="group w-full py-4 bg-[#ff4500] text-black font-semibold uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-[#ff6b35] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-primary w-full py-4 flex items-center justify-center gap-2"
               >
                 {loading ? (
-                  <span className="animate-pulse">PROCESANDO...</span>
+                  <span className="animate-pulse">Procesando...</span>
                 ) : (
                   <>
-                    {isSignup ? 'CREAR CUENTA' : 'INGRESAR'}
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    {isSignup ? 'Crear Cuenta' : 'Ingresar'}
+                    <ArrowRight className="w-4 h-4" />
                   </>
                 )}
               </button>
             </form>
 
-            <div className="mt-8 pt-6 border-t border-white/[0.08] text-center">
-              <p className="text-white/50 text-sm mb-2">
+            <div className="mt-8 pt-6 border-t border-surface-high text-center">
+              <p className="text-on-surface-variant text-sm mb-2">
                 {isSignup ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?'}
               </p>
               <button
                 onClick={() => setIsSignup(!isSignup)}
-                className="text-[#ff4500] hover:text-[#ff6b35] text-sm font-medium uppercase tracking-wider transition-colors"
+                className="text-primary hover:text-primary/80 text-sm font-medium transition-colors"
               >
                 {isSignup ? 'Iniciar Sesión' : 'Crear Cuenta'}
               </button>
@@ -175,7 +176,7 @@ export default function LoginPage() {
         >
           <Link
             href="/"
-            className="text-white/40 hover:text-white text-sm transition-colors inline-flex items-center gap-2"
+            className="text-on-surface-variant hover:text-on-surface text-sm transition-colors inline-flex items-center gap-2"
           >
             <ArrowRight className="w-4 h-4 rotate-180" />
             Volver al inicio

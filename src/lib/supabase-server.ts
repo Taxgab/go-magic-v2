@@ -7,8 +7,8 @@ import { logger } from './logger'
  * Crea un cliente de Supabase para el servidor
  * Usa variables de entorno validadas y manejo de errores apropiado
  */
-export function createClient() {
-  const cookieStore = cookies()
+export async function createClient() {
+  const cookieStore = await cookies()
 
   try {
     const client = createServerClient(

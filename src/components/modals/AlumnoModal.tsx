@@ -17,10 +17,6 @@ interface AlumnoModalProps {
   error?: string | null
 }
 
-/**
- * Modal para crear/editar alumno
- * Usa AlumnoForm separado para mantener responsabilidades claras
- */
 export function AlumnoModal({
   alumno,
   isOpen,
@@ -57,7 +53,7 @@ export function AlumnoModal({
       maxWidth="md"
     >
       {(error || submitError) && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700 text-sm">
+        <div className="mb-4 p-4 bg-tertiary/10 border border-tertiary/20 rounded-2xl flex items-center gap-3 text-tertiary text-sm">
           <AlertCircle size={16} />
           <span>{error || submitError}</span>
         </div>

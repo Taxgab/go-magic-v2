@@ -10,17 +10,7 @@ interface ModalProps {
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl'
 }
 
-/**
- * Modal reutilizable con backdrop y cierre con ESC
- */
-export function Modal({
-  isOpen,
-  onClose,
-  title,
-  children,
-  maxWidth = 'md',
-}: ModalProps) {
-  // Cerrar con ESC
+export function Modal({ isOpen, onClose, title, children, maxWidth = 'md' }: ModalProps) {
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -57,7 +47,7 @@ export function Modal({
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 transition-opacity"
+        className="fixed inset-0 bg-on-surface/30 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
@@ -65,21 +55,18 @@ export function Modal({
       <div className="flex min-h-full items-center justify-center p-4">
         <div
           className={clsx(
-            'relative w-full bg-white rounded-xl shadow-xl transform transition-all',
+            'relative w-full bg-surface-lowest rounded-3xl shadow-ambient transform transition-all',
             maxWidths[maxWidth]
           )}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b">
-            <h2
-              id="modal-title"
-              className="text-xl font-bold text-gray-900"
-            >
+          <div className="flex items-center justify-between p-8 pb-4">
+            <h2 id="modal-title" className="font-serif text-2xl text-on-surface">
               {title}
             </h2>
             <button
               onClick={onClose}
-              className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+              className="p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-low rounded-2xl transition-colors"
               aria-label="Cerrar modal"
             >
               <X size={24} />
@@ -87,7 +74,7 @@ export function Modal({
           </div>
 
           {/* Content */}
-          <div className="p-6">{children}</div>
+          <div className="px-8 pb-8">{children}</div>
         </div>
       </div>
     </div>

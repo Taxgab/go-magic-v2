@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Test Supabase</title>
+  </head>
+  <body>
+    <h1>Test Supabase Connection</h1>
+    <div id="result">Loading...</div>
+    <div id="error"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script>
+      const SUPABASE_URL = 'https://hsffrdkkwdwdqtgvfyll.supabase.co'
+      const SUPABASE_KEY =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhzZmZyZGtrd2R3ZHF0Z3ZmeWxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDc4NjAsImV4cCI6MjA4OTcyMzg2MH0.ITo82Nv5oF3GWQR7mOfdxjqmJdudrzpza5o0RwHnLMQ'
+
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+        auth: { persistSession: false },
+      })
+
+      const dayNames = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
+      const today = dayNames[new Date().getDay()]
+
+      document.getElementById('result').textContent = 'Today is: ' + today
+
+      async function test() {
+        try {
+          console.log('Testing connection...')
+          console.log('Looking for:', today)
+
+          const response = await supabase.from('clases_publicas').select('*').eq('dia', today)
+          console.log('Full response:', JSON.stringify(response, null, 2))
+
+          const { data, error } = response
+
+          if (error) {
+            document.getElementById('error').textContent = 'Error: ' + JSON.stringify(error)
+            return
+          }
+
+          document.getElementById('result').textContent =
+            'Found ' + (data?.length || 0) + ' classes: ' + JSON.stringify(data)
+        } catch (e) {
+          document.getElementById('error').textContent = 'Exception: ' + e.message
+          console.error(e)
+        }
+      }
+
+      test()
+    </script>
+  </body>
+</html>

@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Test Simple</title>
+  </head>
+  <body>
+    <h1>Test</h1>
+    <div id="step1">Step 1: Pending...</div>
+    <div id="step2">Step 2: Pending...</div>
+    <div id="step3">Step 3: Pending...</div>
+    <div id="step4">Step 4: Pending...</div>
+    <div id="result">Result: Pending...</div>
+
+    <script>
+      document.getElementById('step1').textContent = 'Step 1: JavaScript works!'
+
+      const dayNames = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
+      const today = dayNames[new Date().getDay()]
+      document.getElementById('step2').textContent = 'Step 2: Today is ' + today
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+    <script>
+      document.getElementById('step3').textContent =
+        'Step 3: Supabase loaded? ' + (typeof window.supabase !== 'undefined')
+
+      if (typeof window.supabase !== 'undefined') {
+        const SUPABASE_URL = 'https://hsffrdkkwdwdqtgvfyll.supabase.co'
+        const SUPABASE_KEY =
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhzZmZyZGtrd2R3ZHF0Z3ZmeWxsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDc4NjAsImV4cCI6MjA4OTcyMzg2MH0.ITo82Nv5oF3GWQR7mOfdxjqmJdudrzpza5o0RwHnLMQ'
+
+        document.getElementById('step4').textContent = 'Step 4: Creating client...'
+
+        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+          auth: { persistSession: false },
+        })
+
+        document.getElementById('step4').textContent = 'Step 4: Client created'
+
+        client
+          .from('clases_publicas')
+          .select('*')
+          .eq('dia', today)
+          .then(response => {
+            document.getElementById('result').textContent = 'Result: ' + JSON.stringify(response)
+          })
+          .catch(err => {
+            document.getElementById('result').textContent = 'Error: ' + err.message
+          })
+      } else {
+        document.getElementById('result').textContent =
+          'Error: Supabase library not loaded from CDN'
+      }
+    </script>
+  </body>
+</html>

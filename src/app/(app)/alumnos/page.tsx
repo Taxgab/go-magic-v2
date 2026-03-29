@@ -9,11 +9,6 @@ import { Plus, Search, Edit2, Trash2, AlertCircle } from 'lucide-react'
 import { Alumno } from '@/types'
 import { AlumnoFormData } from '@/lib/validation/alumno'
 
-/**
- * Página de Alumnos refactorizada
- * Usa hook useAlumnos y componentes reutilizables
- * Reducida de 385 líneas a ~100 líneas
- */
 export default function AlumnosPage() {
   const [search, setSearch] = useState('')
   const [showModal, setShowModal] = useState(false)
@@ -32,12 +27,9 @@ export default function AlumnosPage() {
     clearFormErrors,
   } = useAlumnos({ search })
 
-  // Filtrar alumnos localmente (el hook ya filtra en API, esto es backup)
   const filteredAlumnos = useMemo(() => {
     if (!search) return alumnos
-    return alumnos.filter((a) =>
-      a.nombre.toLowerCase().includes(search.toLowerCase())
-    )
+    return alumnos.filter(a => a.nombre.toLowerCase().includes(search.toLowerCase()))
   }, [alumnos, search])
 
   const handleCreate = () => {
@@ -61,10 +53,7 @@ export default function AlumnosPage() {
     }
   }
 
-  const handleSave = async (
-    data: AlumnoFormData,
-    alumnoId?: string
-  ): Promise<boolean> => {
+  const handleSave = async (data: AlumnoFormData, alumnoId?: string): Promise<boolean> => {
     if (alumnoId) {
       const success = await update(alumnoId, data)
       if (success) {
@@ -85,28 +74,28 @@ export default function AlumnosPage() {
       key: 'nombre',
       header: 'Nombre',
       render: (alumno: Alumno) => (
-        <span className="font-medium">{alumno.nombre}</span>
+        <span className="font-medium text-on-surface">{alumno.nombre}</span>
       ),
     },
     {
       key: 'dni',
       header: 'DNI',
       render: (alumno: Alumno) => (
-        <span className="text-gray-600">{alumno.dni || '-'}</span>
+        <span className="text-on-surface-variant">{alumno.dni || '-'}</span>
       ),
     },
     {
       key: 'telefono',
       header: 'Teléfono',
       render: (alumno: Alumno) => (
-        <span className="text-gray-600">{alumno.telefono || '-'}</span>
+        <span className="text-on-surface-variant">{alumno.telefono || '-'}</span>
       ),
     },
     {
       key: 'email',
       header: 'Email',
       render: (alumno: Alumno) => (
-        <span className="text-gray-600">{alumno.email || '-'}</span>
+        <span className="text-on-surface-variant">{alumno.email || '-'}</span>
       ),
     },
     {
@@ -114,10 +103,8 @@ export default function AlumnosPage() {
       header: 'Estado',
       render: (alumno: Alumno) => (
         <span
-          className={`px-2 py-1 text-xs rounded-full ${
-            alumno.estado === 'activo'
-              ? 'bg-green-100 text-green-700'
-              : 'bg-gray-100 text-gray-700'
+          className={`px-3 py-1 text-xs font-medium rounded-full ${
+            alumno.estado === 'activo' ? 'badge-success' : 'badge-neutral'
           }`}
         >
           {alumno.estado}
@@ -131,14 +118,14 @@ export default function AlumnosPage() {
         <div className="flex gap-2">
           <button
             onClick={() => handleEdit(alumno)}
-            className="p-2 text-blue-600 hover:bg-blue-50 rounded"
+            className="p-2 text-primary hover:bg-primary/10 rounded-xl transition-colors"
             aria-label="Editar alumno"
           >
             <Edit2 size={18} />
           </button>
           <button
             onClick={() => handleDelete(alumno)}
-            className="p-2 text-red-600 hover:bg-red-50 rounded"
+            className="p-2 text-tertiary hover:bg-tertiary/10 rounded-xl transition-colors"
             aria-label="Eliminar alumno"
           >
             <Trash2 size={18} />
@@ -150,32 +137,35 @@ export default function AlumnosPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Alumnos</h1>
-        <Button onClick={handleCreate} className="flex items-center gap-2">
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="font-serif text-4xl text-on-surface">Alumnos</h1>
+          <p className="text-on-surface-variant mt-1">Gestiona los alumnos del gimnasio</p>
+        </div>
+        <Button onClick={handleCreate}>
           <Plus size={20} /> Nuevo Alumno
         </Button>
       </div>
 
       {error && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700">
+        <div className="mb-6 p-4 bg-tertiary/10 border border-tertiary/20 rounded-2xl flex items-center gap-3 text-tertiary">
           <AlertCircle size={20} />
           <span>{error}</span>
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow p-6">
-        <div className="mb-4 relative">
+      <div className="card p-6">
+        <div className="mb-6 relative">
           <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant"
             size={20}
           />
           <input
             type="text"
             placeholder="Buscar alumnos..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            onChange={e => setSearch(e.target.value)}
+            className="input-field pl-12"
           />
         </div>
 
@@ -184,11 +174,11 @@ export default function AlumnosPage() {
           columns={columns}
           loading={loading}
           emptyMessage="No hay alumnos registrados"
-          keyExtractor={(alumno) => alumno.id}
+          keyExtractor={alumno => alumno.id}
         />
 
         {total > 0 && (
-          <div className="mt-4 text-sm text-gray-500 text-right">
+          <div className="mt-6 text-sm text-on-surface-variant text-right">
             Total: {total} alumnos
           </div>
         )}

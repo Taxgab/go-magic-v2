@@ -17,10 +17,6 @@ interface DataTableProps<T> {
   onRowClick?: (item: T) => void
 }
 
-/**
- * Tabla de datos reutilizable con loading state y mensaje vacío
- * Optimizado con React.memo para evitar re-renders innecesarios
- */
 function DataTableComponent<T>({
   data,
   columns,
@@ -31,29 +27,25 @@ function DataTableComponent<T>({
 }: DataTableProps<T>) {
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+      <div className="flex items-center justify-center py-16">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
       </div>
     )
   }
 
   if (data.length === 0) {
-    return (
-      <div className="text-center py-12 text-gray-500">
-        {emptyMessage}
-      </div>
-    )
+    return <div className="empty-state">{emptyMessage}</div>
   }
 
   return (
     <div className="overflow-x-auto">
       <table className="w-full">
         <thead>
-          <tr className="border-b text-left">
-            {columns.map((column) => (
+          <tr className="border-b border-surface-high">
+            {columns.map(column => (
               <th
                 key={column.key}
-                className="pb-3 font-medium text-sm text-gray-500"
+                className="pb-4 font-semibold text-sm text-on-surface-variant uppercase tracking-wider"
                 style={{ width: column.width }}
               >
                 {column.header}
@@ -62,23 +54,20 @@ function DataTableComponent<T>({
           </tr>
         </thead>
         <tbody>
-          {data.map((item) => (
+          {data.map(item => (
             <tr
               key={keyExtractor(item)}
               className={clsx(
-                'border-b last:border-0 transition-colors',
-                onRowClick && 'cursor-pointer hover:bg-gray-50'
+                'border-b border-surface-high last:border-0 transition-colors',
+                onRowClick && 'cursor-pointer hover:bg-surface-low'
               )}
               onClick={() => onRowClick?.(item)}
             >
-              {columns.map((column) => (
-                <td
-                  key={`${keyExtractor(item)}-${column.key}`}
-                  className="py-4"
-                >
+              {columns.map(column => (
+                <td key={`${keyExtractor(item)}-${column.key}`} className="py-4 text-on-surface">
                   {column.render
                     ? column.render(item)
-                    : (item as Record<string, unknown>)[column.key] as ReactNode}
+                    : ((item as Record<string, unknown>)[column.key] as ReactNode)}
                 </td>
               ))}
             </tr>
@@ -89,5 +78,4 @@ function DataTableComponent<T>({
   )
 }
 
-// Memoizar para evitar re-renders cuando las props no cambian
 export const DataTable = memo(DataTableComponent) as typeof DataTableComponent
