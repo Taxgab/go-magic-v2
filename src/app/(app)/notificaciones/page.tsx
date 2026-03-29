@@ -48,17 +48,24 @@ export default function NotificacionesPage() {
 
       // Obtener asistencias de hoy (de las clases del usuario)
       const claseIds = (clasesData || []).map(c => c.id)
+      console.log('Clase IDs:', claseIds)
+      console.log('Today ISO:', todayISO)
 
       let asistenciasData: any[] = []
       if (claseIds.length > 0) {
         const { data, error: asistError } = await supabase
           .from('asistencias')
-          .select('*, clase:clases(nombre, hora, profesores(nombre))')
+          .select('*')
           .in('clase_id', claseIds)
           .eq('fecha_clase', todayISO)
           .eq('estado', 'confirmado')
 
-        if (asistError) throw asistError
+        if (asistError) {
+          console.error('Error asistencias:', asistError)
+          throw asistError
+        }
+
+        console.log('Asistencias recibidas:', data)
         asistenciasData = data || []
       }
 
