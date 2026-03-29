@@ -47,7 +47,7 @@ export async function GET(request: Request) {
         countByClass[a.clase_id] = (countByClass[a.clase_id] || 0) + 1
       })
 
-      return NextResponse.json({ asistencias: countByClass })
+      return NextResponse.json({ asistencias: countByClass, detalles: data })
     }
 
     return NextResponse.json({ error: 'Acción no válida' }, { status: 400 })

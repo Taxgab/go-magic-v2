@@ -46,31 +46,23 @@ export default function NotificacionesPage() {
 
       if (clasesError) throw clasesError
 
-      // Obtener asistencias de hoy (de las clases del usuario)
-      const claseIds = (clasesData || []).map(c => c.id)
-      console.log('Clase IDs:', claseIds)
-      console.log('Today ISO:', todayISO)
-
+      // Obtener asistencias de hoy usando la API pública
       let asistenciasData: any[] = []
-      if (claseIds.length > 0) {
-        // Obtener todas las asistencias de hoy y filtrar manualmente
-        const { data, error: asistError } = await supabase
-          .from('asistencias')
-          .select('*')
-          .eq('fecha_clase', todayISO)
-          .eq('estado', 'confirmado')
+      try {
+        const res = await fetch('/api/asistencia?action=asistencias')
+        const result = await res.json()
+        console.log('API asistencias:', result)
 
-        if (asistError) {
-          console.error('Error asistencias:', asistError)
-          throw asistError
+        if (result.detalles) {
+          const claseIds = (clasesData || []).map(c => c.id)
+          // Filtrar solo las asistencias de las clases del usuario
+          asistenciasData = result.detalles.filter((a: any) => claseIds.includes(a.clase_id))
         }
-
-        console.log('Todas las asistencias:', data)
-
-        // Filtrar solo las asistencias de las clases del usuario
-        asistenciasData = (data || []).filter(a => claseIds.includes(a.clase_id))
-        console.log('Asistencias filtradas:', asistenciasData)
+      } catch (err) {
+        console.error('Error fetching asistencias:', err)
       }
+
+      console.log('Asistencias procesadas:', asistenciasData)
 
       // Agrupar asistencias por clase
       const asistenciasPorClase: Record<string, Asistencia[]> = {}
