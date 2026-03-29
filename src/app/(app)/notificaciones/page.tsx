@@ -53,10 +53,10 @@ export default function NotificacionesPage() {
 
       let asistenciasData: any[] = []
       if (claseIds.length > 0) {
+        // Obtener todas las asistencias de hoy y filtrar manualmente
         const { data, error: asistError } = await supabase
           .from('asistencias')
           .select('*')
-          .in('clase_id', claseIds)
           .eq('fecha_clase', todayISO)
           .eq('estado', 'confirmado')
 
@@ -65,8 +65,11 @@ export default function NotificacionesPage() {
           throw asistError
         }
 
-        console.log('Asistencias recibidas:', data)
-        asistenciasData = data || []
+        console.log('Todas las asistencias:', data)
+
+        // Filtrar solo las asistencias de las clases del usuario
+        asistenciasData = (data || []).filter(a => claseIds.includes(a.clase_id))
+        console.log('Asistencias filtradas:', asistenciasData)
       }
 
       // Agrupar asistencias por clase
