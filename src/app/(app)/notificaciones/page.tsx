@@ -15,6 +15,7 @@ export default function NotificacionesPage() {
   const [selectedClase, setSelectedClase] = useState<string | null>(null)
   const [messageTemplate, setMessageTemplate] = useState('')
   const [copiedList, setCopiedList] = useState<string | null>(null)
+  const [originUrl, setOriginUrl] = useState<string>('')
   const supabase = createClient()
 
   const today = new Date()
@@ -83,6 +84,12 @@ export default function NotificacionesPage() {
     fetchData()
   }, [fetchData])
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setOriginUrl(window.location.origin)
+    }
+  }, [])
+
   const generateMessage = (clase: Clase) => {
     const asistencias = asistenciasHoy[clase.id] || []
     const confirmados = asistencias.length
@@ -101,7 +108,7 @@ Te recordamos que mañana ${todayLabel.toLowerCase()} tenés clase de ${tipo}:
 ${disponibles > 0 ? `✅ Hay ${disponibles} lugares disponibles` : '⚠️ La clase está completa'}
 
 Para confirmar tu asistencia, entrá acá:
-👉 [LINK_A_CONFIRMAR]
+👉 ${originUrl}/asistencia
 
 ¡Te esperamos! 🤸‍♀️`
   }
@@ -351,19 +358,10 @@ Para confirmar tu asistencia, entrá acá:
                       </p>
                       <div className="flex gap-2">
                         <code className="flex-1 p-3 bg-white rounded-lg text-sm text-gray-700 overflow-x-auto">
-                          {typeof window !== 'undefined'
-                            ? `${window.location.origin}/asistencia.html`
-                            : ''}
+                          {originUrl}/asistencia
                         </code>
                         <button
-                          onClick={() =>
-                            copyToClipboard(
-                              typeof window !== 'undefined'
-                                ? `${window.location.origin}/asistencia.html`
-                                : '',
-                              'link'
-                            )
-                          }
+                          onClick={() => copyToClipboard(`${originUrl}/asistencia`, 'link')}
                           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 whitespace-nowrap"
                         >
                           {copiedList === 'link' ? '✓' : 'Copiar'}
