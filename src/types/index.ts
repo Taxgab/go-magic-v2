@@ -20,6 +20,7 @@ export type Alumno = {
   estado: AlumnoEstado
   created_at: string
   updated_at: string
+  inscripciones?: Inscripcion[]
 }
 
 export type Profesor = {
@@ -79,7 +80,10 @@ export type Inscripcion = {
   clase_id: string
   alumno_id: string
   fecha_inscripcion: string
+  clase?: Clase
 }
+
+export type InscripcionInsert = Omit<Inscripcion, 'id' | 'fecha_inscripcion' | 'user_id' | 'clase'>
 
 export type Pago = {
   id: string

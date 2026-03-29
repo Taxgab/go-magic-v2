@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { Alumno, AlumnoInsert, AlumnoUpdate } from '@/types'
 import { fetchAlumnos, FetchAlumnosResult } from '@/api/alumnos/queries'
 import { createAlumno, updateAlumno, deleteAlumno } from '@/api/alumnos/mutations'
+import { createInscripciones, deleteInscripcionesByAlumno } from '@/api/inscripciones'
 import { validateAlumno, validateAlumnoUpdate, AlumnoFormData } from '@/lib/validation/alumno'
 import { handleApiError } from '@/lib/api-wrapper'
 import { createClient } from '@/lib/supabase-client'
@@ -52,7 +53,9 @@ export function useAlumnos(options: UseAlumnosOptions = {}): UseAlumnosReturn {
    * Obtiene el usuario actual
    */
   const getCurrentUser = useCallback(async () => {
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
     return user
   }, [supabase])
 
@@ -98,129 +101,151 @@ export function useAlumnos(options: UseAlumnosOptions = {}): UseAlumnosReturn {
   /**
    * Crea un nuevo alumno
    */
-  const create = useCallback(async (data: AlumnoFormData): Promise<boolean> => {
-    setError(null)
-    setFormErrors({})
+  const create = useCallback(
+    async (data: AlumnoFormData): Promise<boolean> => {
+      setError(null)
+      setFormErrors({})
 
-    // Validar datos
-    const validation = validateAlumno(data)
-    if (!validation.success) {
-      setFormErrors(validation.errors)
-      return false
-    }
-
-    setLoading(true)
-
-    try {
-      const user = await getCurrentUser()
-      if (!user) {
-        setError('No hay usuario autenticado')
-        setLoading(false)
+      // Validar datos
+      const validation = validateAlumno(data)
+      if (!validation.success) {
+        setFormErrors(validation.errors)
         return false
       }
 
-      const result = await createAlumno(user.id, validation.data as AlumnoInsert)
+      setLoading(true)
 
-      if (result.error) {
-        handleApiError(result.error, setError)
+      try {
+        const user = await getCurrentUser()
+        if (!user) {
+          setError('No hay usuario autenticado')
+          setLoading(false)
+          return false
+        }
+
+        // Extraer clase_ids antes de crear el alumno
+        const { clase_ids, ...alumnoData } = validation.data
+
+        const result = await createAlumno(user.id, alumnoData as AlumnoInsert)
+
+        if (result.error || !result.data) {
+          handleApiError(result.error, setError)
+          setLoading(false)
+          return false
+        }
+
+        // Crear inscripciones si hay clases seleccionadas
+        if (clase_ids && clase_ids.length > 0) {
+          await createInscripciones(user.id, result.data.id, clase_ids)
+        }
+
+        // Refrescar lista
+        await refresh()
+        setLoading(false)
+        return true
+      } catch (err) {
+        setError('Error inesperado al crear alumno')
         setLoading(false)
         return false
       }
-
-      // Refrescar lista
-      await refresh()
-      setLoading(false)
-      return true
-    } catch (err) {
-      setError('Error inesperado al crear alumno')
-      setLoading(false)
-      return false
-    }
-  }, [getCurrentUser, refresh])
+    },
+    [getCurrentUser, refresh]
+  )
 
   /**
    * Actualiza un alumno existente
    */
-  const update = useCallback(async (
-    id: string,
-    data: Partial<AlumnoFormData>
-  ): Promise<boolean> => {
-    setError(null)
-    setFormErrors({})
+  const update = useCallback(
+    async (id: string, data: Partial<AlumnoFormData>): Promise<boolean> => {
+      setError(null)
+      setFormErrors({})
 
-    // Validar datos
-    const validation = validateAlumnoUpdate(data)
-    if (!validation.success) {
-      setFormErrors(validation.errors)
-      return false
-    }
-
-    setLoading(true)
-
-    try {
-      const user = await getCurrentUser()
-      if (!user) {
-        setError('No hay usuario autenticado')
-        setLoading(false)
+      // Validar datos
+      const validation = validateAlumnoUpdate(data)
+      if (!validation.success) {
+        setFormErrors(validation.errors)
         return false
       }
 
-      const result = await updateAlumno(id, user.id, validation.data as AlumnoUpdate)
+      setLoading(true)
 
-      if (result.error) {
-        handleApiError(result.error, setError)
+      try {
+        const user = await getCurrentUser()
+        if (!user) {
+          setError('No hay usuario autenticado')
+          setLoading(false)
+          return false
+        }
+
+        // Extraer clase_ids antes de actualizar
+        const { clase_ids, ...alumnoData } = validation.data
+
+        const result = await updateAlumno(id, user.id, alumnoData as AlumnoUpdate)
+
+        if (result.error) {
+          handleApiError(result.error, setError)
+          setLoading(false)
+          return false
+        }
+
+        // Actualizar inscripciones si se proporcionaron clase_ids
+        if (clase_ids !== undefined) {
+          await createInscripciones(user.id, id, clase_ids)
+        }
+
+        // Refrescar lista
+        await refresh()
+        setLoading(false)
+        return true
+      } catch (err) {
+        setError('Error inesperado al actualizar alumno')
         setLoading(false)
         return false
       }
-
-      // Refrescar lista
-      await refresh()
-      setLoading(false)
-      return true
-    } catch (err) {
-      setError('Error inesperado al actualizar alumno')
-      setLoading(false)
-      return false
-    }
-  }, [getCurrentUser, refresh])
+    },
+    [getCurrentUser, refresh]
+  )
 
   /**
    * Elimina un alumno
    */
-  const remove = useCallback(async (id: string): Promise<boolean> => {
-    if (!confirm('¿Eliminar este alumno?')) {
-      return false
-    }
-
-    setLoading(true)
-    setError(null)
-
-    try {
-      const user = await getCurrentUser()
-      if (!user) {
-        setError('No hay usuario autenticado')
-        setLoading(false)
+  const remove = useCallback(
+    async (id: string): Promise<boolean> => {
+      if (!confirm('¿Eliminar este alumno?')) {
         return false
       }
 
-      const result = await deleteAlumno(id, user.id)
+      setLoading(true)
+      setError(null)
 
-      if (result.error) {
-        handleApiError(result.error, setError)
+      try {
+        const user = await getCurrentUser()
+        if (!user) {
+          setError('No hay usuario autenticado')
+          setLoading(false)
+          return false
+        }
+
+        const result = await deleteAlumno(id, user.id)
+
+        if (result.error) {
+          handleApiError(result.error, setError)
+          setLoading(false)
+          return false
+        }
+
+        // Refrescar lista
+        await refresh()
+        setLoading(false)
+        return true
+      } catch (err) {
+        setError('Error inesperado al eliminar alumno')
         setLoading(false)
         return false
       }
-
-      // Refrescar lista
-      await refresh()
-      setLoading(false)
-      return true
-    } catch (err) {
-      setError('Error inesperado al eliminar alumno')
-      setLoading(false)
-      return false
-    }
-  }, [getCurrentUser, refresh])
+    },
+    [getCurrentUser, refresh]
+  )
 
   /**
    * Limpia los errores

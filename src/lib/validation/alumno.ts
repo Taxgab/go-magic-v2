@@ -9,59 +9,63 @@ import { config } from '@/config/app'
 export const alumnoSchema = z.object({
   nombre: z
     .string()
-    .min(config.validation.minNameLength, `El nombre debe tener al menos ${config.validation.minNameLength} caracteres`)
-    .max(config.validation.maxNameLength, `El nombre no puede exceder ${config.validation.maxNameLength} caracteres`)
-    .transform((val) => val.trim()),
+    .min(
+      config.validation.minNameLength,
+      `El nombre debe tener al menos ${config.validation.minNameLength} caracteres`
+    )
+    .max(
+      config.validation.maxNameLength,
+      `El nombre no puede exceder ${config.validation.maxNameLength} caracteres`
+    )
+    .transform(val => val.trim()),
 
   dni: z
     .string()
     .regex(config.validation.dniRegex, 'El DNI debe tener 7-8 dígitos numéricos')
     .optional()
     .nullable()
-    .transform((val) => (val ? val.trim() : null)),
+    .transform(val => (val ? val.trim() : null)),
 
   telefono: z
     .string()
     .regex(config.validation.phoneRegex, 'El teléfono debe tener al menos 8 caracteres')
     .optional()
     .nullable()
-    .transform((val) => (val ? val.trim() : null)),
+    .transform(val => (val ? val.trim() : null)),
 
   email: z
     .string()
     .email('El formato del email es inválido')
     .optional()
     .nullable()
-    .transform((val) => (val ? val.trim() : null)),
+    .transform(val => (val ? val.trim() : null)),
 
   direccion: z
     .string()
     .max(200, 'La dirección no puede exceder 200 caracteres')
     .optional()
     .nullable()
-    .transform((val) => (val ? val.trim() : null)),
+    .transform(val => (val ? val.trim() : null)),
 
   contacto_emergencia: z
     .string()
     .max(200, 'El contacto de emergencia no puede exceder 200 caracteres')
     .optional()
     .nullable()
-    .transform((val) => (val ? val.trim() : null)),
+    .transform(val => (val ? val.trim() : null)),
 
   medico: z
     .string()
     .max(200, 'La información médica no puede exceder 200 caracteres')
     .optional()
     .nullable()
-    .transform((val) => (val ? val.trim() : null)),
+    .transform(val => (val ? val.trim() : null)),
 
-  fecha_alta: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'La fecha debe tener formato YYYY-MM-DD'),
+  fecha_alta: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'La fecha debe tener formato YYYY-MM-DD'),
 
-  estado: z
-    .enum(['activo', 'inactivo'])
-    .default('activo'),
+  estado: z.enum(['activo', 'inactivo']).default('activo'),
+
+  clase_ids: z.array(z.string()).optional(),
 })
 
 export const alumnoInsertSchema = alumnoSchema
@@ -90,7 +94,7 @@ export function validateAlumno(
 
   // Convertir errores de Zod a formato simple
   const errors: Record<string, string> = {}
-  result.error.issues.forEach((issue) => {
+  result.error.issues.forEach(issue => {
     const field = issue.path[0] as string
     errors[field] = issue.message
   })
@@ -111,7 +115,7 @@ export function validateAlumnoUpdate(
   }
 
   const errors: Record<string, string> = {}
-  result.error.issues.forEach((issue) => {
+  result.error.issues.forEach(issue => {
     const field = issue.path[0] as string
     errors[field] = issue.message
   })

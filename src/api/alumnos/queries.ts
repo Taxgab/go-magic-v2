@@ -13,7 +13,7 @@ export interface FetchAlumnosResult {
 }
 
 /**
- * Obtiene todos los alumnos de un usuario con filtros opcionales
+ * Obtiene todos los alumnos de un usuario con filtros opcionales e inscripciones
  */
 export async function fetchAlumnos({
   userId,
@@ -24,33 +24,37 @@ export async function fetchAlumnos({
 }: FetchAlumnosParams): Promise<ApiResult<FetchAlumnosResult>> {
   const supabase = createClient()
 
-  return withDatabaseErrorHandling(async () => {
-    let query = supabase
-      .from('alumnos')
-      .select('*', { count: 'exact' })
-      .eq('user_id', userId)
-      .order('nombre')
-      .range(offset, offset + limit - 1)
+  return withDatabaseErrorHandling(
+    async () => {
+      let query = supabase
+        .from('alumnos')
+        .select('*, inscripciones(clase_id, clase:clases(nombre, dia, hora))', { count: 'exact' })
+        .eq('user_id', userId)
+        .order('nombre')
+        .range(offset, offset + limit - 1)
 
-    if (estado) {
-      query = query.eq('estado', estado)
-    }
+      if (estado) {
+        query = query.eq('estado', estado)
+      }
 
-    if (search) {
-      query = query.ilike('nombre', `%${search}%`)
-    }
+      if (search) {
+        query = query.ilike('nombre', `%${search}%`)
+      }
 
-    const { data, error, count } = await query
+      const { data, error, count } = await query
 
-    if (error) {
-      throw error
-    }
+      if (error) {
+        throw error
+      }
 
-    return {
-      alumnos: data as Alumno[],
-      total: count || 0,
-    }
-  }, 'fetchAlumnos', userId)
+      return {
+        alumnos: data as Alumno[],
+        total: count || 0,
+      }
+    },
+    'fetchAlumnos',
+    userId
+  )
 }
 
 /**
@@ -62,41 +66,47 @@ export async function fetchAlumnoById(
 ): Promise<ApiResult<Alumno | null>> {
   const supabase = createClient()
 
-  return withDatabaseErrorHandling(async () => {
-    const { data, error } = await supabase
-      .from('alumnos')
-      .select('*')
-      .eq('id', alumnoId)
-      .eq('user_id', userId)
-      .single()
+  return withDatabaseErrorHandling(
+    async () => {
+      const { data, error } = await supabase
+        .from('alumnos')
+        .select('*')
+        .eq('id', alumnoId)
+        .eq('user_id', userId)
+        .single()
 
-    if (error) {
-      throw error
-    }
+      if (error) {
+        throw error
+      }
 
-    return data as Alumno | null
-  }, 'fetchAlumnoById', userId)
+      return data as Alumno | null
+    },
+    'fetchAlumnoById',
+    userId
+  )
 }
 
 /**
  * Obtiene el conteo total de alumnos activos
  */
-export async function countAlumnosActivos(
-  userId: string
-): Promise<ApiResult<number>> {
+export async function countAlumnosActivos(userId: string): Promise<ApiResult<number>> {
   const supabase = createClient()
 
-  return withDatabaseErrorHandling(async () => {
-    const { count, error } = await supabase
-      .from('alumnos')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .eq('estado', 'activo')
+  return withDatabaseErrorHandling(
+    async () => {
+      const { count, error } = await supabase
+        .from('alumnos')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .eq('estado', 'activo')
 
-    if (error) {
-      throw error
-    }
+      if (error) {
+        throw error
+      }
 
-    return count || 0
-  }, 'countAlumnosActivos', userId)
+      return count || 0
+    },
+    'countAlumnosActivos',
+    userId
+  )
 }

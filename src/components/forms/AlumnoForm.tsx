@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useCallback } from 'react'
-import { Alumno } from '@/types'
+import { useState, useCallback, useEffect } from 'react'
+import { Alumno, Clase } from '@/types'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { AlumnoFormData } from '@/lib/validation/alumno'
+import { createClient } from '@/lib/supabase-client'
 
 interface AlumnoFormProps {
   alumno?: Alumno | null
@@ -31,10 +32,54 @@ export function AlumnoForm({
     medico: alumno?.medico || '',
     fecha_alta: alumno?.fecha_alta || new Date().toISOString().split('T')[0],
     estado: alumno?.estado || 'activo',
+    clase_ids: alumno?.inscripciones?.map(i => i.clase_id) || [],
   })
 
-  const handleChange = useCallback((field: keyof AlumnoFormData, value: string) => {
+  const [clases, setClases] = useState<Clase[]>([])
+  const [loadingClases, setLoadingClases] = useState(false)
+
+  const supabase = createClient()
+
+  // Cargar clases disponibles
+  useEffect(() => {
+    const fetchClases = async () => {
+      setLoadingClases(true)
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
+        if (!user) return
+
+        const { data } = await supabase
+          .from('clases')
+          .select('id, nombre, dia, hora, user_id, precio, estado, created_at, updated_at')
+          .eq('user_id', user.id)
+          .eq('estado', 'activa')
+          .order('nombre')
+
+        setClases((data as Clase[]) || [])
+      } catch (err) {
+        console.error('Error cargando clases:', err)
+      } finally {
+        setLoadingClases(false)
+      }
+    }
+
+    fetchClases()
+  }, [supabase])
+
+  const handleChange = useCallback((field: keyof AlumnoFormData, value: any) => {
     setForm(prev => ({ ...prev, [field]: value }))
+  }, [])
+
+  const handleClaseToggle = useCallback((claseId: string) => {
+    setForm(prev => {
+      const currentIds = prev.clase_ids || []
+      const newIds = currentIds.includes(claseId)
+        ? currentIds.filter(id => id !== claseId)
+        : [...currentIds, claseId]
+      return { ...prev, clase_ids: newIds }
+    })
   }, [])
 
   const handleSubmit = useCallback(
@@ -109,6 +154,35 @@ export function AlumnoForm({
         onChange={e => handleChange('medico', e.target.value)}
         placeholder="Médico de cabecera"
       />
+
+      <div>
+        <label className="label">Actividades/Clases</label>
+        {loadingClases ? (
+          <div className="text-sm text-gray-500">Cargando clases...</div>
+        ) : clases.length === 0 ? (
+          <div className="text-sm text-gray-500">No hay clases disponibles</div>
+        ) : (
+          <div className="space-y-2 max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-3">
+            {clases.map(clase => (
+              <div key={clase.id} className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id={`clase-${clase.id}`}
+                  checked={form.clase_ids?.includes(clase.id) || false}
+                  onChange={() => handleClaseToggle(clase.id)}
+                  className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                />
+                <label
+                  htmlFor={`clase-${clase.id}`}
+                  className="text-sm text-gray-700 cursor-pointer"
+                >
+                  {clase.nombre} - {clase.dia} {clase.hora} hs
+                </label>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
