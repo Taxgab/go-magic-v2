@@ -46,19 +46,25 @@ export default function NotificacionesPage() {
 
       if (clasesError) throw clasesError
 
-      // Obtener asistencias de hoy
-      const { data: asistenciasData, error: asistError } = await supabase
-        .from('asistencias')
-        .select('*, clase:clases(nombre, hora, profesores(nombre))')
-        .eq('user_id', user.id)
-        .eq('fecha_clase', todayISO)
-        .eq('estado', 'confirmado')
+      // Obtener asistencias de hoy (de las clases del usuario)
+      const claseIds = (clasesData || []).map(c => c.id)
 
-      if (asistError) throw asistError
+      let asistenciasData: any[] = []
+      if (claseIds.length > 0) {
+        const { data, error: asistError } = await supabase
+          .from('asistencias')
+          .select('*, clase:clases(nombre, hora, profesores(nombre))')
+          .in('clase_id', claseIds)
+          .eq('fecha_clase', todayISO)
+          .eq('estado', 'confirmado')
+
+        if (asistError) throw asistError
+        asistenciasData = data || []
+      }
 
       // Agrupar asistencias por clase
       const asistenciasPorClase: Record<string, Asistencia[]> = {}
-      asistenciasData?.forEach((a: Asistencia) => {
+      asistenciasData.forEach((a: Asistencia) => {
         if (!asistenciasPorClase[a.clase_id]) {
           asistenciasPorClase[a.clase_id] = []
         }
