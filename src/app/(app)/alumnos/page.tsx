@@ -160,13 +160,14 @@ export default function AlumnosPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
-        <div>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-8">
+        <div className="sm:flex-1">
           <h1 className="font-serif text-4xl text-on-surface">Alumnos</h1>
           <p className="text-on-surface-variant mt-1">Gestiona los alumnos del gimnasio</p>
         </div>
-        <Button onClick={handleCreate}>
-          <Plus size={20} /> Nuevo Alumno
+        <Button onClick={handleCreate} className="whitespace-nowrap">
+          <Plus size={20} />
+          <span className="sm:hidden lg:inline"> Nuevo Alumno</span>
         </Button>
       </div>
 
@@ -198,6 +199,7 @@ export default function AlumnosPage() {
           loading={loading}
           emptyMessage="No hay alumnos registrados"
           keyExtractor={alumno => alumno.id}
+          cardBreakpoint="md"
         />
 
         {total > 0 && (

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase-client'
 import { Pago, Alumno, PagoInsert, FormErrors, MetodoPago, PagoEstado } from '@/types'
 import { Plus, Search, Edit2, Trash2, X, Check, Clock, AlertCircle } from 'lucide-react'
+import { DataTable } from '@/components/ui/DataTable'
 
 // Funciones de validación
 const validatePagoForm = (form: PagoInsert): FormErrors => {
@@ -154,6 +155,70 @@ export default function PagosPage() {
     return matchSearch && matchFilter
   })
 
+  const columns = [
+    {
+      key: 'fecha',
+      header: 'Fecha',
+      render: (pago: Pago) => new Date(pago.fecha_pago).toLocaleDateString(),
+    },
+    {
+      key: 'alumno',
+      header: 'Alumno',
+      render: (pago: Pago) => <span className="font-medium">{pago.alumno?.nombre || '-'}</span>,
+    },
+    {
+      key: 'concepto',
+      header: 'Concepto',
+      render: (pago: Pago) => <span className="text-gray-600">{pago.concepto}</span>,
+    },
+    {
+      key: 'monto',
+      header: 'Monto',
+      render: (pago: Pago) => <span className="font-medium">${pago.monto.toLocaleString()}</span>,
+    },
+    {
+      key: 'metodo',
+      header: 'Método',
+      render: (pago: Pago) => <span className="text-gray-600">{pago.metodo}</span>,
+    },
+    {
+      key: 'estado',
+      header: 'Estado',
+      render: (pago: Pago) => (
+        <button
+          onClick={() => toggleEstado(pago)}
+          className={`flex items-center gap-1 px-2 py-1 text-xs rounded-full cursor-pointer ${pago.estado === 'pagado' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}
+        >
+          {pago.estado === 'pagado' ? <Check size={14} /> : <Clock size={14} />}
+          {pago.estado}
+        </button>
+      ),
+    },
+    {
+      key: 'acciones',
+      header: 'Acciones',
+      render: (pago: Pago) => (
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              setEditing(pago)
+              setShowModal(true)
+            }}
+            className="p-2 text-blue-600 hover:bg-blue-50 rounded"
+          >
+            <Edit2 size={18} />
+          </button>
+          <button
+            onClick={() => handleDelete(pago.id)}
+            className="p-2 text-red-600 hover:bg-red-50 rounded"
+          >
+            <Trash2 size={18} />
+          </button>
+        </div>
+      ),
+    },
+  ]
+
   const totalPagado = pagos.filter(p => p.estado === 'pagado').reduce((sum, p) => sum + p.monto, 0)
   const totalPendiente = pagos
     .filter(p => p.estado === 'pendiente')
@@ -161,17 +226,21 @@ export default function PagosPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="font-serif text-4xl text-on-surface">Pagos</h1>
-        <p className="text-on-surface-variant mt-1">Registra y gestiona los pagos</p>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
+        <div className="sm:flex-1">
+          <h1 className="font-serif text-4xl text-on-surface">Pagos</h1>
+          <p className="text-on-surface-variant mt-1">Registra y gestiona los pagos</p>
+        </div>
         <button
           onClick={() => {
             setEditing(null)
             setShowModal(true)
           }}
-          className="btn-primary flex items-center gap-2"
+          className="btn-primary flex items-center justify-center gap-2 whitespace-nowrap"
         >
-          <Plus size={20} /> Nuevo Pago
+          <Plus size={20} />
+          <span className="sm:hidden lg:inline"> Nuevo Pago</span>
+          <span className="hidden sm:inline lg:hidden">Agregar</span>
         </button>
       </div>
 
@@ -225,67 +294,14 @@ export default function PagosPage() {
         {loading ? (
           <p className="text-center text-gray-500 py-8">Cargando...</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b text-left text-sm text-gray-500">
-                  <th className="pb-3 font-medium">Fecha</th>
-                  <th className="pb-3 font-medium">Alumno</th>
-                  <th className="pb-3 font-medium">Concepto</th>
-                  <th className="pb-3 font-medium">Monto</th>
-                  <th className="pb-3 font-medium">Método</th>
-                  <th className="pb-3 font-medium">Estado</th>
-                  <th className="pb-3 font-medium">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map(pago => (
-                  <tr key={pago.id} className="border-b last:border-0">
-                    <td className="py-4">{new Date(pago.fecha_pago).toLocaleDateString()}</td>
-                    <td className="py-4 font-medium">{pago.alumno?.nombre || '-'}</td>
-                    <td className="py-4 text-gray-600">{pago.concepto}</td>
-                    <td className="py-4 font-medium">${pago.monto.toLocaleString()}</td>
-                    <td className="py-4 text-gray-600">{pago.metodo}</td>
-                    <td className="py-4">
-                      <button
-                        onClick={() => toggleEstado(pago)}
-                        className={`flex items-center gap-1 px-2 py-1 text-xs rounded-full cursor-pointer ${pago.estado === 'pagado' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}
-                      >
-                        {pago.estado === 'pagado' ? <Check size={14} /> : <Clock size={14} />}
-                        {pago.estado}
-                      </button>
-                    </td>
-                    <td className="py-4">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => {
-                            setEditing(pago)
-                            setShowModal(true)
-                          }}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded"
-                        >
-                          <Edit2 size={18} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(pago.id)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {filtered.length === 0 && (
-                  <tr>
-                    <td colSpan={7} className="py-8 text-center text-gray-500">
-                      No hay pagos registrados
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            data={filtered}
+            columns={columns}
+            loading={loading}
+            emptyMessage="No hay pagos registrados"
+            keyExtractor={pago => pago.id}
+            cardBreakpoint="md"
+          />
         )}
       </div>
 

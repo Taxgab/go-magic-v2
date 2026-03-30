@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase-client'
 import { Profesor, ProfesorInsert, ProfesorUpdate, FormErrors } from '@/types'
-import { Plus, Search, Edit2, Trash2, X, AlertCircle } from 'lucide-react'
+import { Plus, Search, Edit2, Trash2, AlertCircle } from 'lucide-react'
+import { DataTable } from '@/components/ui/DataTable'
 
 // Funciones de validación
 const validateProfesorForm = (form: ProfesorInsert | ProfesorUpdate): FormErrors => {
@@ -107,19 +108,84 @@ export default function ProfesoresPage() {
 
   const filtered = profesores.filter(p => p.nombre.toLowerCase().includes(search.toLowerCase()))
 
+  const columns = [
+    {
+      key: 'nombre',
+      header: 'Nombre',
+      render: (profesor: Profesor) => <span className="font-medium">{profesor.nombre}</span>,
+    },
+    {
+      key: 'especialidad',
+      header: 'Especialidad',
+      render: (profesor: Profesor) => (
+        <span className="text-gray-600">{profesor.especialidad || '-'}</span>
+      ),
+    },
+    {
+      key: 'comision',
+      header: 'Comisión',
+      render: (profesor: Profesor) => (
+        <span className="text-gray-600">{profesor.porcentaje_comision}%</span>
+      ),
+    },
+    {
+      key: 'telefono',
+      header: 'Teléfono',
+      render: (profesor: Profesor) => (
+        <span className="text-gray-600">{profesor.telefono || '-'}</span>
+      ),
+    },
+    {
+      key: 'estado',
+      header: 'Estado',
+      render: (profesor: Profesor) => (
+        <span className={profesor.estado === 'activo' ? 'badge-success' : 'badge-neutral'}>
+          {profesor.estado}
+        </span>
+      ),
+    },
+    {
+      key: 'acciones',
+      header: 'Acciones',
+      render: (profesor: Profesor) => (
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              setEditing(profesor)
+              setShowModal(true)
+            }}
+            className="p-2 text-primary hover:bg-primary/10 rounded-xl"
+          >
+            <Edit2 size={18} />
+          </button>
+          <button
+            onClick={() => handleDelete(profesor.id)}
+            className="p-2 text-tertiary hover:bg-tertiary/10 rounded-xl"
+          >
+            <Trash2 size={18} />
+          </button>
+        </div>
+      ),
+    },
+  ]
+
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="font-serif text-4xl text-on-surface">Profesores</h1>
-        <p className="text-on-surface-variant mt-1">Gestiona los profesores del gimnasio</p>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
+        <div className="sm:flex-1">
+          <h1 className="font-serif text-4xl text-on-surface">Profesores</h1>
+          <p className="text-on-surface-variant mt-1">Gestiona los profesores del gimnasio</p>
+        </div>
         <button
           onClick={() => {
             setEditing(null)
             setShowModal(true)
           }}
-          className="btn-primary flex items-center gap-2"
+          className="btn-primary flex items-center justify-center gap-2 whitespace-nowrap"
         >
-          <Plus size={20} /> Nuevo Profesor
+          <Plus size={20} />
+          <span className="sm:hidden lg:inline">Nuevo Profesor</span>
+          <span className="hidden sm:inline lg:hidden">Agregar</span>
         </button>
       </div>
 
@@ -145,63 +211,14 @@ export default function ProfesoresPage() {
         {loading ? (
           <p className="text-center text-gray-500 py-8">Cargando...</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b text-left text-sm text-gray-500">
-                  <th className="pb-3 font-medium">Nombre</th>
-                  <th className="pb-3 font-medium">Especialidad</th>
-                  <th className="pb-3 font-medium">Comisión</th>
-                  <th className="pb-3 font-medium">Teléfono</th>
-                  <th className="pb-3 font-medium">Estado</th>
-                  <th className="pb-3 font-medium">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map(profesor => (
-                  <tr key={profesor.id} className="border-b last:border-0">
-                    <td className="py-4 font-medium">{profesor.nombre}</td>
-                    <td className="py-4 text-gray-600">{profesor.especialidad || '-'}</td>
-                    <td className="py-4 text-gray-600">{profesor.porcentaje_comision}%</td>
-                    <td className="py-4 text-gray-600">{profesor.telefono || '-'}</td>
-                    <td className="py-4">
-                      <span
-                        className={profesor.estado === 'activo' ? 'badge-success' : 'badge-neutral'}
-                      >
-                        {profesor.estado}
-                      </span>
-                    </td>
-                    <td className="py-4">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => {
-                            setEditing(profesor)
-                            setShowModal(true)
-                          }}
-                          className="p-2 text-primary hover:bg-primary/10 rounded-xl"
-                        >
-                          <Edit2 size={18} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(profesor.id)}
-                          className="p-2 text-tertiary hover:bg-tertiary/10 rounded-xl"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {filtered.length === 0 && (
-                  <tr>
-                    <td colSpan={6} className="py-8 text-center text-gray-500">
-                      No hay profesores registrados
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            data={filtered}
+            columns={columns}
+            loading={loading}
+            emptyMessage="No hay profesores registrados"
+            keyExtractor={profesor => profesor.id}
+            cardBreakpoint="md"
+          />
         )}
       </div>
 

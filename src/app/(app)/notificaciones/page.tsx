@@ -183,12 +183,12 @@ Para confirmar tu asistencia, entrá acá:
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <div>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
+        <div className="sm:flex-1">
           <h1 className="text-3xl font-bold text-gray-900">Notificaciones</h1>
           <p className="text-gray-600 mt-1">Gestiona las confirmaciones de asistencia del día</p>
         </div>
-        <div className="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg flex items-center gap-2">
+        <div className="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg flex items-center gap-2 self-start">
           <Calendar size={20} />
           <span className="font-medium">
             {todayLabel} {today.getDate()}/{today.getMonth() + 1}

@@ -184,24 +184,24 @@ export function AlumnoForm({
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="min-w-0">
           <label className="label">Fecha de Alta</label>
           <input
             type="date"
             value={form.fecha_alta}
             onChange={e => handleChange('fecha_alta', e.target.value)}
-            className="input-field"
+            className="input-field w-full"
             required
           />
         </div>
 
-        <div>
+        <div className="min-w-0">
           <label className="label">Estado</label>
           <select
             value={form.estado}
             onChange={e => handleChange('estado', e.target.value)}
-            className="input-field"
+            className="input-field w-full"
           >
             <option value="activo">Activo</option>
             <option value="inactivo">Inactivo</option>

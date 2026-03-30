@@ -123,17 +123,21 @@ export default function ClasesPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="font-serif text-4xl text-on-surface">Clases</h1>
-        <p className="text-on-surface-variant mt-1">Administra las clases del gimnasio</p>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
+        <div className="sm:flex-1">
+          <h1 className="font-serif text-4xl text-on-surface">Clases</h1>
+          <p className="text-on-surface-variant mt-1">Administra las clases del gimnasio</p>
+        </div>
         <button
           onClick={() => {
             setEditing(null)
             setShowModal(true)
           }}
-          className="btn-primary flex items-center gap-2"
+          className="btn-primary flex items-center justify-center gap-2 whitespace-nowrap"
         >
-          <Plus size={20} /> Nueva Clase
+          <Plus size={20} />
+          <span className="sm:hidden lg:inline"> Nueva Clase</span>
+          <span className="hidden sm:inline lg:hidden">Agregar</span>
         </button>
       </div>
 
