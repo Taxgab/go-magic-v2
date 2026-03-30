@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase-client'
 import { Profesor, ProfesorInsert, ProfesorUpdate, FormErrors } from '@/types'
-import { Plus, Search, Edit2, Trash2, AlertCircle } from 'lucide-react'
+import { Plus, Search, Edit2, Trash2, X, AlertCircle } from 'lucide-react'
 import { DataTable } from '@/components/ui/DataTable'
 
 // Funciones de validación
