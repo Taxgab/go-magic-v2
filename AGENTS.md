@@ -30,6 +30,7 @@ npm run lint
 ## Code Style Guidelines
 
 ### Imports (Ordered)
+
 1. React/Next imports
 2. Third-party libraries (lucide-react, recharts)
 3. Absolute imports (@/lib, @/types)
@@ -44,6 +45,7 @@ import { Alumno } from '@/types'
 ```
 
 ### Naming Conventions
+
 - **Components**: PascalCase (`AlumnoModal`, `DashboardPage`)
 - **Functions**: camelCase (`fetchAlumnos`, `handleSubmit`)
 - **Types/Interfaces**: PascalCase (`Alumno`, `Configuracion`)
@@ -51,12 +53,14 @@ import { Alumno } from '@/types'
 - **Constants**: UPPER_SNAKE_CASE for true constants
 
 ### TypeScript
+
 - Use strict types - avoid `any`
 - Prefer `type` over `interface` for data models
 - Use explicit return types on exported functions
 - Leverage path aliases (`@/*` maps to `./src/*`)
 
 ### Component Structure
+
 - Use `'use client'` for client components
 - Server components by default for data fetching
 - Co-locate modals within page files
@@ -69,16 +73,17 @@ import { useState } from 'react'
 export default function PageName() {
   // hooks first
   const [data, setData] = useState()
-  
+
   // handlers
   const handleAction = () => {}
-  
+
   // render
   return <div>...</div>
 }
 ```
 
 ### Error Handling
+
 Always handle Supabase errors with try-catch and proper user feedback:
 
 ```typescript
@@ -87,7 +92,9 @@ const [error, setError] = useState<string | null>(null)
 const fetchData = async () => {
   try {
     setError(null)
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
     if (!user) {
       setError('No hay usuario autenticado')
       return
@@ -97,13 +104,13 @@ const fetchData = async () => {
       .from('table')
       .select()
       .eq('user_id', user.id)
-    
+
     if (supabaseError) {
       console.error('Error:', supabaseError)
       setError(`Error al cargar: ${supabaseError.message}`)
       return
     }
-    
+
     setData(data || [])
   } catch (err) {
     console.error('Unexpected error:', err)
@@ -113,6 +120,7 @@ const fetchData = async () => {
 ```
 
 ### Form Validation
+
 Validate forms before submission with specific error messages:
 
 ```typescript
@@ -120,15 +128,15 @@ import { FormErrors } from '@/types'
 
 const validateForm = (form: FormType): FormErrors => {
   const errors: FormErrors = {}
-  
+
   if (!form.nombre?.trim()) {
     errors.nombre = 'El nombre es requerido'
   }
-  
+
   if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
     errors.email = 'Email inválido'
   }
-  
+
   return errors
 }
 
@@ -141,12 +149,14 @@ if (Object.keys(errors).length > 0) {
 ```
 
 ### Tailwind Classes
+
 - Use consistent spacing (multiples of 4)
 - Group related classes
 - Use custom colors from theme (`primary-600`)
 - Standard patterns: `bg-white rounded-xl shadow p-6`
 
 ### Form Patterns
+
 - Use controlled inputs
 - Validate on submit
 - Show loading state on buttons
@@ -162,6 +172,7 @@ const [loading, setLoading] = useState(false)
 ```
 
 ### Database Patterns
+
 - Filter by `user_id` in queries
 - Use `order()` for consistent sorting
 - Handle optional relations with `?`
@@ -195,10 +206,11 @@ src/
 
 ```typescript
 // From src/types/index.ts
-Alumno, Profesor, Clase, Pago, Configuracion
+;(Alumno, Profesor, Clase, Pago, Configuracion)
 ```
 
 ## Auth Flow
+
 - Middleware (`src/middleware.ts`) protects routes
 - Supabase SSR handles session cookies
 - Client components use `createClient()` from `@/lib/supabase-client`
@@ -207,6 +219,7 @@ Alumno, Profesor, Clase, Pago, Configuracion
 ## Testing
 
 No test framework configured. To add tests:
+
 ```bash
 npm install --save-dev jest @testing-library/react @testing-library/jest-dom
 ```
@@ -214,7 +227,20 @@ npm install --save-dev jest @testing-library/react @testing-library/jest-dom
 ## Environment Variables
 
 Required in `.env.local`:
+
 ```
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 ```
+
+## Git Preferences
+
+```bash
+# User configuration (already set globally)
+git config --global user.name "Taxgab"
+git config --global user.email "taxgab@gmail.com"
+```
+
+- **Remote**: `origin` → `https://github.com/Taxgab/go-magic-v2.git`
+- **Auth**: GitHub CLI (gh) con token OAuth
+- **Protocol**: HTTPS
