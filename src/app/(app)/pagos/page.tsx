@@ -14,8 +14,10 @@ import {
   DollarSign,
   TrendingUp,
   Receipt,
+  User,
+  CreditCard,
+  Calendar,
 } from 'lucide-react'
-import { DataTable } from '@/components/ui/DataTable'
 import { Button } from '@/components/ui/Button'
 import { StatCard } from '@/components/ui/StatCard'
 import { PagoModal } from '@/components/modals/PagoModal'
@@ -138,84 +140,17 @@ export default function PagosPage() {
     return matchSearch && matchFilter
   })
 
-  const columns = [
-    {
-      key: 'fecha',
-      header: 'Fecha',
-      render: (pago: Pago) => (
-        <span className="text-on-surface-variant">
-          {new Date(pago.fecha_pago).toLocaleDateString()}
-        </span>
-      ),
-    },
-    {
-      key: 'alumno',
-      header: 'Alumno',
-      render: (pago: Pago) => (
-        <span className="font-medium text-on-surface">{pago.alumno?.nombre || '-'}</span>
-      ),
-    },
-    {
-      key: 'concepto',
-      header: 'Concepto',
-      render: (pago: Pago) => <span className="text-on-surface-variant">{pago.concepto}</span>,
-    },
-    {
-      key: 'monto',
-      header: 'Monto',
-      render: (pago: Pago) => (
-        <span className="font-medium text-on-surface">${pago.monto.toLocaleString()}</span>
-      ),
-    },
-    {
-      key: 'metodo',
-      header: 'Método',
-      render: (pago: Pago) => (
-        <span className="text-on-surface-variant capitalize">{pago.metodo}</span>
-      ),
-    },
-    {
-      key: 'estado',
-      header: 'Estado',
-      render: (pago: Pago) => (
-        <button
-          onClick={() => toggleEstado(pago)}
-          className={`flex items-center gap-1 px-3 py-1 text-xs rounded-full cursor-pointer transition-colors ${pago.estado === 'pagado' ? 'badge-success' : 'badge-warning'}`}
-        >
-          {pago.estado === 'pagado' ? <Check size={14} /> : <Clock size={14} />}
-          {pago.estado}
-        </button>
-      ),
-    },
-    {
-      key: 'acciones',
-      header: 'Acciones',
-      render: (pago: Pago) => (
-        <div className="flex gap-2">
-          <button
-            onClick={() => {
-              setEditing(pago)
-              setShowModal(true)
-            }}
-            className="p-2 text-primary hover:bg-primary/10 rounded-xl transition-colors"
-          >
-            <Edit2 size={18} />
-          </button>
-          <button
-            onClick={() => handleDelete(pago.id)}
-            className="p-2 text-tertiary hover:bg-tertiary/10 rounded-xl transition-colors"
-          >
-            <Trash2 size={18} />
-          </button>
-        </div>
-      ),
-    },
-  ]
-
   const totalPagado = pagos.filter(p => p.estado === 'pagado').reduce((sum, p) => sum + p.monto, 0)
   const totalPendiente = pagos
     .filter(p => p.estado === 'pendiente')
     .reduce((sum, p) => sum + p.monto, 0)
+
+  const metodosIcons: Record<string, string> = {
+    efectivo: '💵',
+    transferencia: '🏦',
+    mercadopago: '📱',
+    tarjeta: '💳',
+  }
 
   return (
     <div>
@@ -297,14 +232,69 @@ export default function PagosPage() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
           </div>
         ) : (
-          <DataTable
-            data={filtered}
-            columns={columns}
-            loading={loading}
-            emptyMessage="No hay pagos registrados"
-            keyExtractor={pago => pago.id}
-            cardBreakpoint="md"
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filtered.map(pago => (
+              <div key={pago.id} className="card card-hover">
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-lg">
+                      {metodosIcons[pago.metodo] || '💰'}
+                    </div>
+                    <div>
+                      <h3 className="font-serif text-lg text-on-surface">{pago.concepto}</h3>
+                      <p className="text-sm text-on-surface-variant">{pago.alumno?.nombre || '-'}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => toggleEstado(pago)}
+                    className={pago.estado === 'pagado' ? 'badge-success' : 'badge-warning'}
+                  >
+                    {pago.estado === 'pagado' ? <Check size={14} /> : <Clock size={14} />}
+                    {pago.estado}
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2 text-sm text-on-surface-variant">
+                    <Calendar size={16} />
+                    <span>{new Date(pago.fecha_pago).toLocaleDateString()}</span>
+                  </div>
+                  <span className="text-2xl font-serif text-on-surface">
+                    ${pago.monto.toLocaleString()}
+                  </span>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => {
+                      setEditing(pago)
+                      setShowModal(true)
+                    }}
+                  >
+                    <Edit2 size={16} />
+                    <span className="ml-1">Editar</span>
+                  </Button>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => handleDelete(pago.id)}
+                  >
+                    <Trash2 size={16} />
+                    <span className="ml-1">Eliminar</span>
+                  </Button>
+                </div>
+              </div>
+            ))}
+            {filtered.length === 0 && (
+              <div className="col-span-full py-8 text-center text-on-surface-variant">
+                No hay pagos registrados
+              </div>
+            )}
+          </div>
         )}
       </div>
 

@@ -3,9 +3,8 @@
 import { useState, useMemo } from 'react'
 import { useAlumnos } from '@/hooks/useAlumnos'
 import { AlumnoModal } from '@/components/modals/AlumnoModal'
-import { DataTable } from '@/components/ui/DataTable'
 import { Button } from '@/components/ui/Button'
-import { Plus, Search, Edit2, Trash2, AlertCircle } from 'lucide-react'
+import { Plus, Search, Edit2, Trash2, AlertCircle, User, Phone, Mail, Calendar } from 'lucide-react'
 import { Alumno } from '@/types'
 import { AlumnoFormData } from '@/lib/validation/alumno'
 
@@ -69,92 +68,6 @@ export default function AlumnosPage() {
     }
   }
 
-  const columns = [
-    {
-      key: 'nombre',
-      header: 'Nombre',
-      render: (alumno: Alumno) => (
-        <span className="font-medium text-on-surface">{alumno.nombre}</span>
-      ),
-    },
-    {
-      key: 'dni',
-      header: 'DNI',
-      render: (alumno: Alumno) => (
-        <span className="text-on-surface-variant">{alumno.dni || '-'}</span>
-      ),
-    },
-    {
-      key: 'telefono',
-      header: 'Teléfono',
-      render: (alumno: Alumno) => (
-        <span className="text-on-surface-variant">{alumno.telefono || '-'}</span>
-      ),
-    },
-    {
-      key: 'email',
-      header: 'Email',
-      render: (alumno: Alumno) => (
-        <span className="text-on-surface-variant">{alumno.email || '-'}</span>
-      ),
-    },
-    {
-      key: 'inscripciones',
-      header: 'Actividades',
-      render: (alumno: Alumno) => {
-        const actividades = alumno.inscripciones?.map(i => i.clase?.nombre).filter(Boolean) || []
-        return (
-          <div className="flex flex-wrap gap-1">
-            {actividades.length > 0 ? (
-              actividades.map((nombre, idx) => (
-                <span key={idx} className="chip chip-primary">
-                  {nombre}
-                </span>
-              ))
-            ) : (
-              <span className="text-on-surface-variant text-sm">Sin actividades</span>
-            )}
-          </div>
-        )
-      },
-    },
-    {
-      key: 'estado',
-      header: 'Estado',
-      render: (alumno: Alumno) => (
-        <span
-          className={`px-3 py-1 text-xs font-medium rounded-full ${
-            alumno.estado === 'activo' ? 'badge-success' : 'badge-neutral'
-          }`}
-        >
-          {alumno.estado}
-        </span>
-      ),
-    },
-    {
-      key: 'acciones',
-      header: 'Acciones',
-      render: (alumno: Alumno) => (
-        <div className="flex gap-2">
-          <button
-            onClick={() => handleEdit(alumno)}
-            className="p-2 text-primary hover:bg-primary/10 rounded-xl transition-colors"
-            aria-label="Editar alumno"
-          >
-            <Edit2 size={18} />
-          </button>
-          <button
-            onClick={() => handleDelete(alumno)}
-            className="p-2 text-tertiary hover:bg-tertiary/10 rounded-xl transition-colors"
-            aria-label="Eliminar alumno"
-          >
-            <Trash2 size={18} />
-          </button>
-        </div>
-      ),
-    },
-  ]
-
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-8">
@@ -164,7 +77,7 @@ export default function AlumnosPage() {
         </div>
         <Button onClick={handleCreate} className="whitespace-nowrap">
           <Plus size={20} />
-          <span className="sm:hidden lg:inline"> Nuevo Alumno</span>
+          <span className="sm:hidden lg:inline">Nuevo Alumno</span>
         </Button>
       </div>
 
@@ -190,19 +103,88 @@ export default function AlumnosPage() {
           />
         </div>
 
-        <DataTable
-          data={filteredAlumnos}
-          columns={columns}
-          loading={loading}
-          emptyMessage="No hay alumnos registrados"
-          keyExtractor={alumno => alumno.id}
-          cardBreakpoint="md"
-        />
+        {loading ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredAlumnos.map(alumno => {
+              const actividades = alumno.inscripciones?.map(i => i.clase?.nombre).filter(Boolean) || []
+              return (
+                <div key={alumno.id} className="card card-hover">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-10 h-10 rounded-2xl bg-secondary/10 flex items-center justify-center">
+                        <User size={20} className="text-secondary" />
+                      </div>
+                      <div>
+                        <h3 className="font-serif text-lg text-on-surface">{alumno.nombre}</h3>
+                        <p className="text-sm text-on-surface-variant">{alumno.dni || 'Sin DNI'}</p>
+                      </div>
+                    </div>
+                    <span className={alumno.estado === 'activo' ? 'badge-success' : 'badge-neutral'}>
+                      {alumno.estado}
+                    </span>
+                  </div>
+
+                  <div className="space-y-2 mb-3">
+                    <div className="flex items-center gap-2 text-sm text-on-surface-variant">
+                      <Phone size={16} />
+                      <span>{alumno.telefono || 'Sin teléfono'}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-on-surface-variant">
+                      <Mail size={16} />
+                      <span className="truncate">{alumno.email || 'Sin email'}</span>
+                    </div>
+                  </div>
+
+                  {actividades.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mb-4">
+                      {actividades.slice(0, 3).map((nombre, idx) => (
+                        <span key={idx} className="chip chip-primary">
+                          {nombre}
+                        </span>
+                      ))}
+                      {actividades.length > 3 && (
+                        <span className="chip chip-primary">+{actividades.length - 3}</span>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => handleEdit(alumno)}
+                    >
+                      <Edit2 size={16} />
+                      <span className="ml-1">Editar</span>
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => handleDelete(alumno)}
+                    >
+                      <Trash2 size={16} />
+                      <span className="ml-1">Eliminar</span>
+                    </Button>
+                  </div>
+                </div>
+              )
+            })}
+            {filteredAlumnos.length === 0 && (
+              <div className="col-span-full py-8 text-center text-on-surface-variant">
+                No hay alumnos registrados
+              </div>
+            )}
+          </div>
+        )}
 
         {total > 0 && (
-          <div className="mt-6 text-sm text-on-surface-variant text-right">
-            Total: {total} alumnos
-          </div>
+          <div className="mt-6 text-sm text-on-surface-variant text-right">Total: {total} alumnos</div>
         )}
       </div>
 
