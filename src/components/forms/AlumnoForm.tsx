@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { Alumno, Clase } from '@/types'
 import { Input } from '@/components/ui/Input'
+import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
 import { AlumnoFormData } from '@/lib/validation/alumno'
 import { createClient } from '@/lib/supabase-client'
@@ -40,7 +41,6 @@ export function AlumnoForm({
 
   const supabase = createClient()
 
-  // Cargar clases disponibles
   useEffect(() => {
     const fetchClases = async () => {
       setLoadingClases(true)
@@ -111,7 +111,6 @@ export function AlumnoForm({
           error={formErrors.dni}
           placeholder="12345678"
         />
-
         <Input
           label="Teléfono"
           type="text"
@@ -139,21 +138,22 @@ export function AlumnoForm({
         placeholder="Dirección completa"
       />
 
-      <Input
-        label="Contacto de Emergencia"
-        type="text"
-        value={form.contacto_emergencia || ''}
-        onChange={e => handleChange('contacto_emergencia', e.target.value)}
-        placeholder="Nombre y teléfono"
-      />
-
-      <Input
-        label="Médico"
-        type="text"
-        value={form.medico || ''}
-        onChange={e => handleChange('medico', e.target.value)}
-        placeholder="Médico de cabecera"
-      />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Input
+          label="Contacto de Emergencia"
+          type="text"
+          value={form.contacto_emergencia || ''}
+          onChange={e => handleChange('contacto_emergencia', e.target.value)}
+          placeholder="Nombre y teléfono"
+        />
+        <Input
+          label="Médico"
+          type="text"
+          value={form.medico || ''}
+          onChange={e => handleChange('medico', e.target.value)}
+          placeholder="Médico de cabecera"
+        />
+      </div>
 
       <div>
         <label className="label">Actividades/Clases</label>
@@ -185,28 +185,21 @@ export function AlumnoForm({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="label">Fecha de Alta</label>
-          <input
-            type="date"
-            value={form.fecha_alta}
-            onChange={e => handleChange('fecha_alta', e.target.value)}
-            className="input-field w-full"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="label">Estado</label>
-          <select
-            value={form.estado}
-            onChange={e => handleChange('estado', e.target.value)}
-            className="input-field w-full"
-          >
-            <option value="activo">Activo</option>
-            <option value="inactivo">Inactivo</option>
-          </select>
-        </div>
+        <Input
+          label="Fecha de Alta"
+          type="date"
+          value={form.fecha_alta}
+          onChange={e => handleChange('fecha_alta', e.target.value)}
+          required
+        />
+        <Select
+          label="Estado"
+          value={form.estado}
+          onChange={e => handleChange('estado', e.target.value)}
+        >
+          <option value="activo">Activo</option>
+          <option value="inactivo">Inactivo</option>
+        </Select>
       </div>
 
       <div className="flex gap-3 pt-4">

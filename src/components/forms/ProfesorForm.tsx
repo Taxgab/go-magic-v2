@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react'
 import { Profesor, ProfesorInsert, FormErrors } from '@/types'
 import { Input } from '@/components/ui/Input'
+import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
 
 const validateProfesorForm = (form: ProfesorInsert): FormErrors => {
@@ -136,26 +137,20 @@ export function ProfesorForm({ profesor, onSubmit, onCancel, loading = false }: 
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="label">Fecha de Alta</label>
-          <input
-            type="date"
-            value={form.fecha_alta}
-            onChange={e => handleChange('fecha_alta', e.target.value)}
-            className="input-field w-full"
-          />
-        </div>
-        <div>
-          <label className="label">Estado</label>
-          <select
-            value={form.estado}
-            onChange={e => handleChange('estado', e.target.value)}
-            className="input-field w-full"
-          >
-            <option value="activo">Activo</option>
-            <option value="inactivo">Inactivo</option>
-          </select>
-        </div>
+        <Input
+          label="Fecha de Alta"
+          type="date"
+          value={form.fecha_alta}
+          onChange={e => handleChange('fecha_alta', e.target.value)}
+        />
+        <Select
+          label="Estado"
+          value={form.estado}
+          onChange={e => handleChange('estado', e.target.value)}
+        >
+          <option value="activo">Activo</option>
+          <option value="inactivo">Inactivo</option>
+        </Select>
       </div>
 
       <div className="flex gap-3 pt-4">

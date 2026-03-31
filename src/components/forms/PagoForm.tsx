@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react'
 import { Pago, Alumno, PagoInsert, FormErrors, MetodoPago, PagoEstado } from '@/types'
 import { Input } from '@/components/ui/Input'
+import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
 
 const validatePagoForm = (form: PagoInsert): FormErrors => {
@@ -75,24 +76,20 @@ export function PagoForm({ pago, alumnos, onSubmit, onCancel, loading = false }:
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <div>
-        <label className="label">Alumno</label>
-        <select
-          value={form.alumno_id}
-          onChange={e => handleChange('alumno_id', e.target.value)}
-          className={`input-field w-full ${formErrors.alumno_id ? 'ring-2 ring-tertiary/30' : ''}`}
-        >
-          <option value="">Seleccionar alumno</option>
-          {alumnos.map(a => (
-            <option key={a.id} value={a.id}>
-              {a.nombre}
-            </option>
-          ))}
-        </select>
-        {formErrors.alumno_id && (
-          <p className="mt-2 text-sm text-tertiary">{formErrors.alumno_id}</p>
-        )}
-      </div>
+      <Select
+        label="Alumno"
+        value={form.alumno_id}
+        onChange={e => handleChange('alumno_id', e.target.value)}
+        error={formErrors.alumno_id}
+        required
+      >
+        <option value="">Seleccionar alumno</option>
+        {alumnos.map(a => (
+          <option key={a.id} value={a.id}>
+            {a.nombre}
+          </option>
+        ))}
+      </Select>
 
       <Input
         label="Concepto"
@@ -114,45 +111,34 @@ export function PagoForm({ pago, alumnos, onSubmit, onCancel, loading = false }:
           error={formErrors.monto}
           required
         />
-        <div>
-          <label className="label">Método</label>
-          <select
-            value={form.metodo}
-            onChange={e => handleChange('metodo', e.target.value as MetodoPago)}
-            className="input-field w-full"
-          >
-            <option value="efectivo">Efectivo</option>
-            <option value="transferencia">Transferencia</option>
-            <option value="mercadopago">MercadoPago</option>
-            <option value="tarjeta">Tarjeta</option>
-          </select>
-        </div>
+        <Select
+          label="Método"
+          value={form.metodo}
+          onChange={e => handleChange('metodo', e.target.value as MetodoPago)}
+        >
+          <option value="efectivo">Efectivo</option>
+          <option value="transferencia">Transferencia</option>
+          <option value="mercadopago">MercadoPago</option>
+          <option value="tarjeta">Tarjeta</option>
+        </Select>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="label">Fecha</label>
-          <input
-            type="date"
-            value={form.fecha_pago}
-            onChange={e => handleChange('fecha_pago', e.target.value)}
-            className={`input-field w-full ${formErrors.fecha_pago ? 'ring-2 ring-tertiary/30' : ''}`}
-          />
-          {formErrors.fecha_pago && (
-            <p className="mt-2 text-sm text-tertiary">{formErrors.fecha_pago}</p>
-          )}
-        </div>
-        <div>
-          <label className="label">Estado</label>
-          <select
-            value={form.estado}
-            onChange={e => handleChange('estado', e.target.value as PagoEstado)}
-            className="input-field w-full"
-          >
-            <option value="pagado">Pagado</option>
-            <option value="pendiente">Pendiente</option>
-          </select>
-        </div>
+        <Input
+          label="Fecha"
+          type="date"
+          value={form.fecha_pago}
+          onChange={e => handleChange('fecha_pago', e.target.value)}
+          error={formErrors.fecha_pago}
+        />
+        <Select
+          label="Estado"
+          value={form.estado}
+          onChange={e => handleChange('estado', e.target.value as PagoEstado)}
+        >
+          <option value="pagado">Pagado</option>
+          <option value="pendiente">Pendiente</option>
+        </Select>
       </div>
 
       <div className="flex gap-3 pt-4">

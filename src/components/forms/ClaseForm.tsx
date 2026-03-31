@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react'
 import { Clase, Profesor, ClaseInsert, FormErrors } from '@/types'
 import { Input } from '@/components/ui/Input'
+import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
 
 const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
@@ -93,62 +94,46 @@ export function ClaseForm({
         required
       />
 
-      <div>
-        <label className="label">Tipo de clase</label>
-        <select
-          value={form.tipo || 'pilates'}
-          onChange={e => handleChange('tipo', e.target.value)}
-          className="input-field w-full"
-        >
-          {TIPOS_CLASE.map(t => (
-            <option key={t.value} value={t.value}>
-              {t.icon} {t.label}
-            </option>
-          ))}
-        </select>
-      </div>
+      <Select
+        label="Tipo de clase"
+        value={form.tipo || 'pilates'}
+        onChange={e => handleChange('tipo', e.target.value)}
+      >
+        {TIPOS_CLASE.map(t => (
+          <option key={t.value} value={t.value}>
+            {t.icon} {t.label}
+          </option>
+        ))}
+      </Select>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="label">Día</label>
-          <select
-            value={form.dia}
-            onChange={e => handleChange('dia', e.target.value)}
-            className="input-field w-full"
-          >
-            {DIAS.map(d => (
-              <option key={d} value={d}>
-                {d}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="label">Hora</label>
-          <input
-            type="time"
-            value={form.hora}
-            onChange={e => handleChange('hora', e.target.value)}
-            className="input-field w-full"
-          />
-        </div>
-      </div>
-
-      <div>
-        <label className="label">Profesor</label>
-        <select
-          value={form.profesor_id || ''}
-          onChange={e => handleChange('profesor_id', e.target.value || null)}
-          className="input-field w-full"
-        >
-          <option value="">Seleccionar profesor</option>
-          {profesores.map(p => (
-            <option key={p.id} value={p.id}>
-              {p.nombre}
+        <Select label="Día" value={form.dia} onChange={e => handleChange('dia', e.target.value)}>
+          {DIAS.map(d => (
+            <option key={d} value={d}>
+              {d}
             </option>
           ))}
-        </select>
+        </Select>
+        <Input
+          label="Hora"
+          type="time"
+          value={form.hora}
+          onChange={e => handleChange('hora', e.target.value)}
+        />
       </div>
+
+      <Select
+        label="Profesor"
+        value={form.profesor_id || ''}
+        onChange={e => handleChange('profesor_id', e.target.value || null)}
+      >
+        <option value="">Seleccionar profesor</option>
+        {profesores.map(p => (
+          <option key={p.id} value={p.id}>
+            {p.nombre}
+          </option>
+        ))}
+      </Select>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Input
@@ -171,17 +156,14 @@ export function ClaseForm({
         />
       </div>
 
-      <div>
-        <label className="label">Estado</label>
-        <select
-          value={form.estado}
-          onChange={e => handleChange('estado', e.target.value)}
-          className="input-field w-full"
-        >
-          <option value="activa">Activa</option>
-          <option value="cancelada">Cancelada</option>
-        </select>
-      </div>
+      <Select
+        label="Estado"
+        value={form.estado}
+        onChange={e => handleChange('estado', e.target.value)}
+      >
+        <option value="activa">Activa</option>
+        <option value="cancelada">Cancelada</option>
+      </Select>
 
       <div className="flex gap-3 pt-4">
         <Button
