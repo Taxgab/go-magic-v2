@@ -110,7 +110,8 @@ export default function AlumnosPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredAlumnos.map(alumno => {
-              const actividades = alumno.inscripciones?.map(i => i.clase?.nombre).filter(Boolean) || []
+              const actividades =
+                alumno.inscripciones?.map(i => i.clase?.nombre).filter(Boolean) || []
               return (
                 <div key={alumno.id} className="card card-hover">
                   <div className="flex justify-between items-start mb-3">
@@ -123,7 +124,9 @@ export default function AlumnosPage() {
                         <p className="text-sm text-on-surface-variant">{alumno.dni || 'Sin DNI'}</p>
                       </div>
                     </div>
-                    <span className={alumno.estado === 'activo' ? 'badge-success' : 'badge-neutral'}>
+                    <span
+                      className={alumno.estado === 'activo' ? 'badge-success' : 'badge-neutral'}
+                    >
                       {alumno.estado}
                     </span>
                   </div>
@@ -184,7 +187,9 @@ export default function AlumnosPage() {
         )}
 
         {total > 0 && (
-          <div className="mt-6 text-sm text-on-surface-variant text-right">Total: {total} alumnos</div>
+          <div className="mt-6 text-sm text-on-surface-variant text-right">
+            Total: {total} alumnos
+          </div>
         )}
       </div>
 

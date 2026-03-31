@@ -242,7 +242,9 @@ export default function PagosPage() {
                     </div>
                     <div>
                       <h3 className="font-serif text-lg text-on-surface">{pago.concepto}</h3>
-                      <p className="text-sm text-on-surface-variant">{pago.alumno?.nombre || '-'}</p>
+                      <p className="text-sm text-on-surface-variant">
+                        {pago.alumno?.nombre || '-'}
+                      </p>
                     </div>
                   </div>
                   <button

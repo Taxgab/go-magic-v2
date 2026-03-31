@@ -140,7 +140,9 @@ export default function ProfesoresPage() {
                       </p>
                     </div>
                   </div>
-                  <span className={profesor.estado === 'activo' ? 'badge-success' : 'badge-neutral'}>
+                  <span
+                    className={profesor.estado === 'activo' ? 'badge-success' : 'badge-neutral'}
+                  >
                     {profesor.estado}
                   </span>
                 </div>

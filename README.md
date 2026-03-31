@@ -236,3 +236,4 @@ MIT © [Gabi](https://github.com/taxgab)
 ---
 
 ¿Preguntas? Abre un [issue](https://github.com/taxgab/go-magic-gym/issues).
+
