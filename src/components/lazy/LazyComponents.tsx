@@ -14,7 +14,7 @@ function LoadingModal() {
 
 // Lazy load del modal de alumnos
 export const AlumnoModalLazy = dynamic(
-  () => import('@/components/modals/AlumnoModal').then((mod) => mod.AlumnoModal),
+  () => import('@/components/modals/AlumnoModal').then(mod => mod.AlumnoModal),
   {
     loading: LoadingModal,
     ssr: false, // No renderizar en servidor

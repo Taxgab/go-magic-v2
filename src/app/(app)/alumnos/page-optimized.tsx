@@ -1,7 +1,12 @@
 'use client'
 
 import { useState, useCallback, Suspense } from 'react'
-import { useAlumnosQuery, useCreateAlumnoMutation, useUpdateAlumnoMutation, useDeleteAlumnoMutation } from '@/hooks/useAlumnosQuery'
+import {
+  useAlumnosQuery,
+  useCreateAlumnoMutation,
+  useUpdateAlumnoMutation,
+  useDeleteAlumnoMutation,
+} from '@/hooks/useAlumnosQuery'
 import { AlumnoModal } from '@/components/modals/AlumnoModal'
 import { DataTable } from '@/components/ui/DataTable'
 import { Button } from '@/components/ui/Button'
@@ -62,15 +67,15 @@ export default function AlumnosPage() {
     setShowModal(true)
   }, [])
 
-  const handleDelete = useCallback(async (alumno: Alumno) => {
-    if (!confirm('¿Eliminar este alumno?')) return
-    await deleteMutation.mutateAsync(alumno.id)
-  }, [deleteMutation])
+  const handleDelete = useCallback(
+    async (alumno: Alumno) => {
+      if (!confirm('¿Eliminar este alumno?')) return
+      await deleteMutation.mutateAsync(alumno.id)
+    },
+    [deleteMutation]
+  )
 
-  const handleSave = async (
-    data: AlumnoFormData,
-    alumnoId?: string
-  ): Promise<boolean> => {
+  const handleSave = async (data: AlumnoFormData, alumnoId?: string): Promise<boolean> => {
     try {
       if (alumnoId) {
         await updateMutation.mutateAsync({ id: alumnoId, data })
@@ -89,30 +94,22 @@ export default function AlumnosPage() {
     {
       key: 'nombre',
       header: 'Nombre',
-      render: (alumno: Alumno) => (
-        <span className="font-medium">{alumno.nombre}</span>
-      ),
+      render: (alumno: Alumno) => <span className="font-medium">{alumno.nombre}</span>,
     },
     {
       key: 'dni',
       header: 'DNI',
-      render: (alumno: Alumno) => (
-        <span className="text-gray-600">{alumno.dni || '-'}</span>
-      ),
+      render: (alumno: Alumno) => <span className="text-gray-600">{alumno.dni || '-'}</span>,
     },
     {
       key: 'telefono',
       header: 'Teléfono',
-      render: (alumno: Alumno) => (
-        <span className="text-gray-600">{alumno.telefono || '-'}</span>
-      ),
+      render: (alumno: Alumno) => <span className="text-gray-600">{alumno.telefono || '-'}</span>,
     },
     {
       key: 'email',
       header: 'Email',
-      render: (alumno: Alumno) => (
-        <span className="text-gray-600">{alumno.email || '-'}</span>
-      ),
+      render: (alumno: Alumno) => <span className="text-gray-600">{alumno.email || '-'}</span>,
     },
     {
       key: 'estado',
@@ -120,9 +117,7 @@ export default function AlumnosPage() {
       render: (alumno: Alumno) => (
         <span
           className={`px-2 py-1 text-xs rounded-full ${
-            alumno.estado === 'activo'
-              ? 'bg-green-100 text-green-700'
-              : 'bg-gray-100 text-gray-700'
+            alumno.estado === 'activo' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
           }`}
         >
           {alumno.estado}
@@ -171,15 +166,12 @@ export default function AlumnosPage() {
 
       <div className="bg-white rounded-xl shadow p-6">
         <div className="mb-4 relative">
-          <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            size={20}
-          />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
           <input
             type="text"
             placeholder="Buscar alumnos..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={e => setSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
         </div>
@@ -190,14 +182,12 @@ export default function AlumnosPage() {
             columns={columns}
             loading={isLoading}
             emptyMessage="No hay alumnos registrados"
-            keyExtractor={(alumno) => alumno.id}
+            keyExtractor={alumno => alumno.id}
           />
         </Suspense>
 
         {total > 0 && (
-          <div className="mt-4 text-sm text-gray-500 text-right">
-            Total: {total} alumnos
-          </div>
+          <div className="mt-4 text-sm text-gray-500 text-right">Total: {total} alumnos</div>
         )}
       </div>
 

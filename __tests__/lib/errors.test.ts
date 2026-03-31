@@ -24,12 +24,7 @@ describe('AppError', () => {
   })
 
   it('debe crear un AppError con valores personalizados', () => {
-    const error = new AppError(
-      'Error personalizado',
-      'CUSTOM_CODE',
-      400,
-      false
-    )
+    const error = new AppError('Error personalizado', 'CUSTOM_CODE', 400, false)
 
     expect(error.code).toBe('CUSTOM_CODE')
     expect(error.statusCode).toBe(400)

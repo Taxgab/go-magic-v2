@@ -158,11 +158,11 @@ export function AlumnoForm({
       <div>
         <label className="label">Actividades/Clases</label>
         {loadingClases ? (
-          <div className="text-sm text-gray-500">Cargando clases...</div>
+          <div className="text-sm text-on-surface-variant">Cargando clases...</div>
         ) : clases.length === 0 ? (
-          <div className="text-sm text-gray-500">No hay clases disponibles</div>
+          <div className="text-sm text-on-surface-variant">No hay clases disponibles</div>
         ) : (
-          <div className="space-y-2 max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-3">
+          <div className="space-y-2 max-h-40 overflow-y-auto bg-surface-low rounded-2xl p-3">
             {clases.map(clase => (
               <div key={clase.id} className="flex items-center gap-2">
                 <input
@@ -174,7 +174,7 @@ export function AlumnoForm({
                 />
                 <label
                   htmlFor={`clase-${clase.id}`}
-                  className="text-sm text-gray-700 cursor-pointer"
+                  className="text-sm text-on-surface cursor-pointer"
                 >
                   {clase.nombre} - {clase.dia} {clase.hora} hs
                 </label>

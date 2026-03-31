@@ -141,6 +141,7 @@ CREATE POLICY "Users can delete own inscripciones" ON inscripciones
 ## Validaciones del Cliente vs RLS
 
 Aunque las RLS policies protegen la base de datos, el código del cliente también:
+
 1. Filtra por `user_id` en las queries (redundante pero explícito)
 2. Muestra mensajes de error amigables cuando ocurren errores de Supabase
 3. Valida los datos antes de enviarlos al servidor

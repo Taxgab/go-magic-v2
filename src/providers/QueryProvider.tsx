@@ -26,7 +26,7 @@ export function QueryProvider({ children }: QueryProviderProps) {
 
             // Reintentos automáticos
             retry: 3,
-            retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+            retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
 
             // Refetch en background cuando la ventana vuelve a foco
             refetchOnWindowFocus: true,

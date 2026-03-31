@@ -9,28 +9,29 @@ import { withDatabaseErrorHandling, ApiResult } from '@/lib/api-wrapper'
 /**
  * Crea un nuevo alumno
  */
-export async function createAlumno(
-  userId: string,
-  data: AlumnoInsert
-): Promise<ApiResult<Alumno>> {
+export async function createAlumno(userId: string, data: AlumnoInsert): Promise<ApiResult<Alumno>> {
   const supabase = createClient()
 
-  return withDatabaseErrorHandling(async () => {
-    const { data: result, error } = await supabase
-      .from('alumnos')
-      .insert({
-        ...data,
-        user_id: userId,
-      })
-      .select()
-      .single()
+  return withDatabaseErrorHandling(
+    async () => {
+      const { data: result, error } = await supabase
+        .from('alumnos')
+        .insert({
+          ...data,
+          user_id: userId,
+        })
+        .select()
+        .single()
 
-    if (error) {
-      throw error
-    }
+      if (error) {
+        throw error
+      }
 
-    return result as Alumno
-  }, 'createAlumno', userId)
+      return result as Alumno
+    },
+    'createAlumno',
+    userId
+  )
 }
 
 /**
@@ -43,44 +44,49 @@ export async function updateAlumno(
 ): Promise<ApiResult<Alumno>> {
   const supabase = createClient()
 
-  return withDatabaseErrorHandling(async () => {
-    const { data: result, error } = await supabase
-      .from('alumnos')
-      .update({
-        ...data,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', alumnoId)
-      .eq('user_id', userId)
-      .select()
-      .single()
+  return withDatabaseErrorHandling(
+    async () => {
+      const { data: result, error } = await supabase
+        .from('alumnos')
+        .update({
+          ...data,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', alumnoId)
+        .eq('user_id', userId)
+        .select()
+        .single()
 
-    if (error) {
-      throw error
-    }
+      if (error) {
+        throw error
+      }
 
-    return result as Alumno
-  }, 'updateAlumno', userId)
+      return result as Alumno
+    },
+    'updateAlumno',
+    userId
+  )
 }
 
 /**
  * Elimina un alumno
  */
-export async function deleteAlumno(
-  alumnoId: string,
-  userId: string
-): Promise<ApiResult<void>> {
+export async function deleteAlumno(alumnoId: string, userId: string): Promise<ApiResult<void>> {
   const supabase = createClient()
 
-  return withDatabaseErrorHandling(async () => {
-    const { error } = await supabase
-      .from('alumnos')
-      .delete()
-      .eq('id', alumnoId)
-      .eq('user_id', userId)
+  return withDatabaseErrorHandling(
+    async () => {
+      const { error } = await supabase
+        .from('alumnos')
+        .delete()
+        .eq('id', alumnoId)
+        .eq('user_id', userId)
 
-    if (error) {
-      throw error
-    }
-  }, 'deleteAlumno', userId)
+      if (error) {
+        throw error
+      }
+    },
+    'deleteAlumno',
+    userId
+  )
 }

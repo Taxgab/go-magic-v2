@@ -6,18 +6,16 @@ import {
   handleApiError,
   ApiResult,
 } from '@/lib/api-wrapper'
-import {
-  AppError,
-  DatabaseError,
-  AuthError,
-} from '@/lib/errors'
+import { AppError, DatabaseError, AuthError } from '@/lib/errors'
 
 describe('withErrorHandling', () => {
   it('debe retornar éxito cuando la operación funciona', async () => {
     const operation = jest.fn().mockResolvedValue({ id: 1, name: 'Test' })
 
-    const result: ApiResult<{ id: number; name: string }> =
-      await withErrorHandling(operation, 'test')
+    const result: ApiResult<{ id: number; name: string }> = await withErrorHandling(
+      operation,
+      'test'
+    )
 
     expect(result.isSuccess).toBe(true)
     expect(result.data).toEqual({ id: 1, name: 'Test' })

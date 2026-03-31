@@ -26,11 +26,7 @@ const isDev = process.env.NODE_ENV === 'development'
  * Formatea una entrada de log para consola
  */
 function formatLogEntry(entry: LogEntry): string {
-  const parts: string[] = [
-    `[${entry.timestamp}]`,
-    `[${entry.level.toUpperCase()}]`,
-    entry.message,
-  ]
+  const parts: string[] = [`[${entry.timestamp}]`, `[${entry.level.toUpperCase()}]`, entry.message]
 
   if (entry.context && Object.keys(entry.context).length > 0) {
     parts.push(`| Context: ${JSON.stringify(entry.context)}`)

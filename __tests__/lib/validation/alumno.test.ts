@@ -235,9 +235,9 @@ describe('Validación de Alumnos', () => {
   describe('alumnoSchema', () => {
     it('debe tener los campos requeridos correctos', () => {
       const requiredFields = ['nombre', 'fecha_alta']
-      
+
       // Verificar que los campos requeridos causan error si faltan
-      requiredFields.forEach((field) => {
+      requiredFields.forEach(field => {
         const data = {
           nombre: 'Test',
           fecha_alta: '2024-01-15',

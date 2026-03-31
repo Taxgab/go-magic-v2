@@ -9,6 +9,7 @@
 ## 2. Obtener Credenciales
 
 Ir a **Settings > API** y copiar:
+
 - `Project URL` → `NEXT_PUBLIC_SUPABASE_URL`
 - `anon/public` key → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
@@ -22,6 +23,7 @@ Ir a **Settings > API** y copiar:
 ## 4. Configurar Auth (opcional)
 
 En **Authentication > Providers**:
+
 - Email: habilitá el proveedor de email
 - Configurá redirects si es necesario
 
@@ -30,13 +32,14 @@ En **Authentication > Providers**:
 Ejecutá esta query para verificar que todo está ok:
 
 ```sql
-SELECT table_name 
-FROM information_schema.tables 
+SELECT table_name
+FROM information_schema.tables
 WHERE table_schema = 'public'
 ORDER BY table_name;
 ```
 
 Deberías ver:
+
 - alumnos
 - clases
 - configuracion
@@ -47,6 +50,7 @@ Deberías ver:
 ## Troubleshooting
 
 ### Error de permisos
+
 Si hay errores de permisos, ejecutá:
 
 ```sql
@@ -56,11 +60,12 @@ GRANT all privileges on all sequences in schema public to postgres, anon, authen
 ```
 
 ### RLS no funciona
+
 Verificá que RLS esté habilitado:
 
 ```sql
-SELECT tablename, rowsecurity 
-FROM pg_tables 
+SELECT tablename, rowsecurity
+FROM pg_tables
 WHERE schemaname = 'public';
 ```
 

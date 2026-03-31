@@ -17,12 +17,14 @@ export function useStatsQuery(userId: string) {
       if (result.error) {
         throw result.error
       }
-      return result.data || {
-        alumnos: 0,
-        profesores: 0,
-        clases: 0,
-        ingresos: 0,
-      }
+      return (
+        result.data || {
+          alumnos: 0,
+          profesores: 0,
+          clases: 0,
+          ingresos: 0,
+        }
+      )
     },
     // Refetch cada 2 minutos para mantener datos frescos
     staleTime: 2 * 60 * 1000,
@@ -49,12 +51,14 @@ export function usePrefetchStats() {
           if (result.error) {
             throw result.error
           }
-          return result.data || {
-            alumnos: 0,
-            profesores: 0,
-            clases: 0,
-            ingresos: 0,
-          }
+          return (
+            result.data || {
+              alumnos: 0,
+              profesores: 0,
+              clases: 0,
+              ingresos: 0,
+            }
+          )
         },
         staleTime: 5 * 60 * 1000,
       })

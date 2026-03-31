@@ -30,10 +30,7 @@ export async function withDatabaseErrorHandling<T>(
     }
   } catch (error) {
     const appError = toAppError(error)
-    const dbError = new DatabaseError(
-      `Error en operación de base de datos: ${context}`,
-      appError
-    )
+    const dbError = new DatabaseError(`Error en operación de base de datos: ${context}`, appError)
 
     logger.databaseError(context, dbError, {
       userId,
@@ -64,9 +61,7 @@ export async function withAuthErrorHandling<T>(
     }
   } catch (error) {
     const appError = toAppError(error)
-    const authError = new AuthError(
-      `Error de autenticación: ${context}`
-    )
+    const authError = new AuthError(`Error de autenticación: ${context}`)
 
     logger.authError(context, appError)
 
@@ -116,10 +111,10 @@ export function getUserErrorMessage(error: AppError | null): string {
 
   // Mapeo de códigos de error a mensajes amigables
   const errorMessages: Record<string, string> = {
-    'DATABASE_ERROR': 'Error al acceder a la base de datos. Por favor, intenta de nuevo.',
-    'AUTH_ERROR': 'Error de autenticación. Por favor, inicia sesión nuevamente.',
-    'NOT_FOUND': 'El recurso solicitado no fue encontrado.',
-    'VALIDATION_ERROR': 'Los datos ingresados no son válidos.',
+    DATABASE_ERROR: 'Error al acceder a la base de datos. Por favor, intenta de nuevo.',
+    AUTH_ERROR: 'Error de autenticación. Por favor, inicia sesión nuevamente.',
+    NOT_FOUND: 'El recurso solicitado no fue encontrado.',
+    VALIDATION_ERROR: 'Los datos ingresados no son válidos.',
   }
 
   return errorMessages[error.code] || error.message || 'Ha ocurrido un error inesperado'
@@ -135,10 +130,7 @@ export function getUserErrorMessage(error: AppError | null): string {
  * }
  * setAlumnos(data)
  */
-export function handleApiError(
-  error: AppError | null,
-  setError?: (msg: string) => void
-): void {
+export function handleApiError(error: AppError | null, setError?: (msg: string) => void): void {
   if (!error) return
 
   const message = getUserErrorMessage(error)

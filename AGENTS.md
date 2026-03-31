@@ -1,6 +1,6 @@
 # AGENTS.md - Go Magic Gym
 
-This file contains guidelines for AI agents working in this repository.
+Guidelines for AI agents working in this repository.
 
 ## Build & Development Commands
 
@@ -14,175 +14,369 @@ npm run build
 # Start production server
 npm start
 
-# Lint code
-npm run lint
+# Type checking
+npm run typecheck
+
+# Lint & Format
+npm run lint          # Check lint errors
+npm run lint:fix      # Fix lint errors
+npm run format        # Format with Prettier
+npm run format:check  # Check formatting
+```
+
+## Testing Commands
+
+```bash
+# Run all tests
+npm run test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:coverage
+
+# Run CI tests (optimized)
+npm run test:ci
+
+# Run a single test file
+npm run test -- path/to/test.file.ts
+
+# Run tests matching a pattern
+npm run test -- --testNamePattern="describeName"
 ```
 
 ## Tech Stack
 
-- **Framework**: Next.js 14 (App Router)
-- **Language**: TypeScript (strict mode enabled)
-- **Styling**: Tailwind CSS 3.4
-- **Auth & DB**: Supabase (SSR client)
-- **UI Icons**: Lucide React
-- **Charts**: Recharts
+| Technology   | Version | Purpose                    |
+| ------------ | ------- | -------------------------- |
+| Next.js      | 14.x    | Framework (App Router)     |
+| TypeScript   | 5.3     | Strict mode enabled        |
+| Tailwind CSS | 3.4     | Styling                    |
+| Supabase     | 2.39    | Database, Auth, SSR client |
+| React Query  | 5.x     | Server state, caching      |
+| Zod          | 4.x     | Schema validation          |
+| Recharts     | 2.10    | Charts                     |
+| Jest         | 30.x    | Testing                    |
+| Lucide       | -       | Icons                      |
 
-## Code Style Guidelines
+## Code Style
+
+### Formatting (Prettier)
+
+```json
+{
+  "semi": false,
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "printWidth": 100,
+  "tabWidth": 2,
+  "arrowParens": "avoid"
+}
+```
 
 ### Imports (Ordered)
 
 1. React/Next imports
-2. Third-party libraries (lucide-react, recharts)
-3. Absolute imports (@/lib, @/types)
+2. Third-party libraries (zod, lucide-react, recharts)
+3. Absolute imports (@/lib, @/types, @/api, @/hooks)
 4. Relative imports
 
 ```typescript
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { z } from 'zod'
 import { Plus, Search } from 'lucide-react'
 import { createClient } from '@/lib/supabase-client'
-import { Alumno } from '@/types'
+import { Alumno, AlumnoInsert } from '@/types'
+import { fetchAlumnos } from '@/api/alumnos/queries'
+import { validateAlumno } from '@/lib/validation/alumno'
 ```
 
 ### Naming Conventions
 
-- **Components**: PascalCase (`AlumnoModal`, `DashboardPage`)
-- **Functions**: camelCase (`fetchAlumnos`, `handleSubmit`)
-- **Types/Interfaces**: PascalCase (`Alumno`, `Configuracion`)
-- **Files**: kebab-case for utils, PascalCase for components
-- **Constants**: UPPER_SNAKE_CASE for true constants
+| Type         | Convention       | Example                        |
+| ------------ | ---------------- | ------------------------------ |
+| Components   | PascalCase       | `AlumnoModal`, `Button`        |
+| Functions    | camelCase        | `fetchAlumnos`, `handleSubmit` |
+| Types        | PascalCase       | `Alumno`, `AlumnoInsert`       |
+| Files (util) | kebab-case       | `api-wrapper.ts`               |
+| Files (comp) | PascalCase       | `Button.tsx`                   |
+| Hooks        | use + PascalCase | `useAlumnos`, `useStats`       |
 
 ### TypeScript
 
-- Use strict types - avoid `any`
-- Prefer `type` over `interface` for data models
-- Use explicit return types on exported functions
-- Leverage path aliases (`@/*` maps to `./src/*`)
+- Use `type` over `interface` for data models
+- Use `interface` for component props
+- Avoid `any` - use unknown with validation
+- Explicit return types on exported functions
+- Path alias: `@/*` → `./src/*`
+
+```typescript
+// Data model - use type
+export type Alumno = {
+  id: string
+  user_id: string
+  nombre: string
+  estado: AlumnoEstado
+}
+
+// Component props - use interface
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'primary' | 'secondary'
+  loading?: boolean
+}
+```
 
 ### Component Structure
-
-- Use `'use client'` for client components
-- Server components by default for data fetching
-- Co-locate modals within page files
 
 ```typescript
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
+import { createClient } from '@/lib/supabase-client'
 
 export default function PageName() {
-  // hooks first
+  // 1. Hooks first
   const [data, setData] = useState()
+  const [loading, setLoading] = useState(false)
+  const supabase = createClient()
 
-  // handlers
-  const handleAction = () => {}
+  // 2. Callbacks/handlers
+  const handleAction = useCallback(async () => {
+    setLoading(true)
+    // ...
+    setLoading(false)
+  }, [deps])
 
-  // render
+  // 3. Render
   return <div>...</div>
 }
 ```
 
-### Error Handling
+### Validation Pattern (Zod)
 
-Always handle Supabase errors with try-catch and proper user feedback:
+All form validation uses Zod schemas in `src/lib/validation/`:
 
 ```typescript
-const [error, setError] = useState<string | null>(null)
+import { z } from 'zod'
 
-const fetchData = async () => {
-  try {
-    setError(null)
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) {
-      setError('No hay usuario autenticado')
-      return
-    }
+export const alumnoSchema = z.object({
+  nombre: z
+    .string()
+    .min(2)
+    .max(100)
+    .transform(v => v.trim()),
+  dni: z
+    .string()
+    .regex(/^\d{7,8}$/)
+    .optional()
+    .nullable(),
+  estado: z.enum(['activo', 'inactivo']).default('activo'),
+})
 
-    const { data, error: supabaseError } = await supabase
-      .from('table')
-      .select()
-      .eq('user_id', user.id)
+export type AlumnoFormData = z.infer<typeof alumnoSchema>
 
-    if (supabaseError) {
-      console.error('Error:', supabaseError)
-      setError(`Error al cargar: ${supabaseError.message}`)
-      return
-    }
-
-    setData(data || [])
-  } catch (err) {
-    console.error('Unexpected error:', err)
-    setError('Error inesperado')
-  }
+// Validation function
+export function validateAlumno(data: unknown) {
+  const result = alumnoSchema.safeParse(data)
+  if (result.success) return { success: true, data: result.data }
+  const errors: Record<string, string> = {}
+  result.error.issues.forEach(issue => {
+    errors[issue.path[0] as string] = issue.message
+  })
+  return { success: false, errors }
 }
 ```
 
-### Form Validation
+### API Layer Pattern
 
-Validate forms before submission with specific error messages:
+API operations split into `queries.ts` (read) and `mutations.ts` (write):
 
 ```typescript
-import { FormErrors } from '@/types'
-
-const validateForm = (form: FormType): FormErrors => {
-  const errors: FormErrors = {}
-
-  if (!form.nombre?.trim()) {
-    errors.nombre = 'El nombre es requerido'
-  }
-
-  if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-    errors.email = 'Email inválido'
-  }
-
-  return errors
+// src/api/alumnos/queries.ts
+export async function fetchAlumnos(
+  params: FetchAlumnosParams
+): Promise<ApiResult<FetchAlumnosResult>> {
+  const supabase = createClient()
+  return withDatabaseErrorHandling(
+    async () => {
+      const { data, error, count } = await supabase
+        .from('alumnos')
+        .select('*', { count: 'exact' })
+        .eq('user_id', userId)
+        .order('nombre')
+      if (error) throw error
+      return { alumnos: data, total: count }
+    },
+    'fetchAlumnos',
+    userId
+  )
 }
 
-// En el submit:
-const errors = validateForm(form)
-if (Object.keys(errors).length > 0) {
-  setFormErrors(errors)
+// src/api/alumnos/mutations.ts
+export async function createAlumno(userId: string, data: AlumnoInsert): Promise<ApiResult<Alumno>> {
+  return withDatabaseErrorHandling(
+    async () => {
+      const { data: result, error } = await supabase
+        .from('alumnos')
+        .insert({ ...data, user_id: userId })
+        .select()
+        .single()
+      if (error) throw error
+      return result
+    },
+    'createAlumno',
+    userId
+  )
+}
+```
+
+### Error Handling (ApiResult Pattern)
+
+Always use `ApiResult<T>` pattern - never throw to caller:
+
+```typescript
+import { ApiResult, handleApiError } from '@/lib/api-wrapper'
+
+// In API functions
+return { data, error: null, isSuccess: true }
+return { data: null, error: appError, isSuccess: false }
+
+// In hooks/components
+const result = await fetchAlumnos({ userId })
+if (result.error) {
+  handleApiError(result.error, setError)
   return
 }
+setAlumnos(result.data.alumnos)
 ```
 
-### Tailwind Classes
-
-- Use consistent spacing (multiples of 4)
-- Group related classes
-- Use custom colors from theme (`primary-600`)
-- Standard patterns: `bg-white rounded-xl shadow p-6`
-
-### Form Patterns
-
-- Use controlled inputs
-- Validate on submit
-- Show loading state on buttons
-- Clear errors on new actions
+### Supabase Query Patterns
 
 ```typescript
-const [form, setForm] = useState({ name: '' })
-const [loading, setLoading] = useState(false)
+// Always filter by user_id
+.from('alumnos')
+.select('*')
+.eq('user_id', userId)
 
-<button disabled={loading}>
-  {loading ? 'Guardando...' : 'Guardar'}
-</button>
+// Order for consistency
+.order('nombre')
+
+// Use count for pagination
+.select('*', { count: 'exact' })
+
+// Relations with select
+.select('*, inscripciones(clase_id, clase:clases(nombre))')
+
+// Single record
+.select()
+.single()
 ```
 
-### Database Patterns
+### Hook Pattern (Custom Hooks)
 
-- Filter by `user_id` in queries
-- Use `order()` for consistent sorting
-- Handle optional relations with `?`
+Hooks encapsulate state + actions + error handling:
+
+```typescript
+export interface UseAlumnosReturn {
+  alumnos: Alumno[]
+  loading: boolean
+  error: string | null
+  formErrors: Record<string, string>
+  refresh: () => Promise<void>
+  create: (data: AlumnoFormData) => Promise<boolean>
+  update: (id: string, data: Partial<AlumnoFormData>) => Promise<boolean>
+  remove: (id: string) => Promise<boolean>
+}
+
+export function useAlumnos(options?: UseAlumnosOptions): UseAlumnosReturn {
+  // State
+  const [alumnos, setAlumnos] = useState<Alumno[]>([])
+  const [loading, setLoading] = useState(false)
+
+  // Actions with validation + error handling
+  const create = useCallback(
+    async data => {
+      const validation = validateAlumno(data)
+      if (!validation.success) {
+        setFormErrors(validation.errors)
+        return false
+      }
+      // ... API call
+      return true
+    },
+    [deps]
+  )
+
+  // Auto-load on mount
+  useEffect(() => {
+    refresh()
+  }, [refresh])
+
+  return { alumnos, loading, error, formErrors, refresh, create, update, remove }
+}
+```
+
+## Testing Patterns
+
+### Test File Location
+
+Tests in `__tests__/` mirroring source structure:
+
+```
+__tests__/lib/api-wrapper.test.ts    → src/lib/api-wrapper.ts
+__tests__/lib/validation/alumno.test.ts → src/lib/validation/alumno.ts
+```
+
+### Test Structure
+
+```typescript
+import { withErrorHandling, ApiResult } from '@/lib/api-wrapper'
+import { AppError } from '@/lib/errors'
+
+describe('withErrorHandling', () => {
+  it('debe retornar éxito cuando la operación funciona', async () => {
+    const operation = jest.fn().mockResolvedValue({ id: 1 })
+    const result = await withErrorHandling(operation, 'test')
+    expect(result.isSuccess).toBe(true)
+    expect(result.data).toEqual({ id: 1 })
+  })
+
+  it('debe retornar error cuando la operación falla', async () => {
+    const operation = jest.fn().mockRejectedValue(new Error('Test error'))
+    const result = await withErrorHandling(operation, 'test')
+    expect(result.isSuccess).toBe(false)
+    expect(result.error).toBeInstanceOf(AppError)
+  })
+})
+```
+
+### Mocking Supabase
+
+Use mocks from `__tests__/mocks/supabase.ts`:
+
+```typescript
+import { createMockSupabaseClient, mockSupabaseError } from '__tests__/mocks/supabase'
+
+jest.mock('@/lib/supabase-client', () => ({
+  createClient: jest.fn(() => createMockSupabaseClient()),
+}))
+```
 
 ## Project Structure
 
 ```
 src/
+  api/              # Data layer (queries/mutations per entity)
+    alumnos/
+      queries.ts
+      mutations.ts
+      types.ts
+    inscripciones/
+    stats.ts
   app/
-    (app)/           # Protected routes with sidebar
+    (app)/          # Protected routes (authenticated)
       dashboard/
       alumnos/
       profesores/
@@ -190,38 +384,30 @@ src/
       pagos/
       reportes/
       configuracion/
-    login/           # Auth page
-    page.tsx         # Landing
-    layout.tsx       # Root layout
+      notificaciones/
+    api/            # API routes (public)
+      asistencia/
+        route.ts
+    asistencia/     # Public page (no auth)
+    login/
+    layout.tsx
+    globals.css
+  components/
+    ui/             # Base components (Button, Input, Modal)
+    forms/          # Form components
+    modals/         # Modal components
+    lazy/           # Lazy-loaded components
+  hooks/            # Custom hooks (useAlumnos, useStats)
   lib/
     supabase-client.ts   # Browser client
     supabase-server.ts   # Server client
-    middleware.ts        # Auth middleware
-  types/
-    index.ts         # TypeScript types
-  middleware.ts      # Next.js middleware
-```
-
-## Key Types
-
-```typescript
-// From src/types/index.ts
-;(Alumno, Profesor, Clase, Pago, Configuracion)
-```
-
-## Auth Flow
-
-- Middleware (`src/middleware.ts`) protects routes
-- Supabase SSR handles session cookies
-- Client components use `createClient()` from `@/lib/supabase-client`
-- Server components use `createClient()` from `@/lib/supabase-server`
-
-## Testing
-
-No test framework configured. To add tests:
-
-```bash
-npm install --save-dev jest @testing-library/react @testing-library/jest-dom
+    api-wrapper.ts       # Error handling wrapper
+    errors.ts            # Error classes
+    validation/          # Zod schemas
+    logger.ts            # Structured logging
+  types/            # TypeScript types
+  providers/        # React Query provider
+  middleware.ts     # Auth middleware
 ```
 
 ## Environment Variables
@@ -229,18 +415,51 @@ npm install --save-dev jest @testing-library/react @testing-library/jest-dom
 Required in `.env.local`:
 
 ```
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...  # For public API routes
 ```
 
-## Git Preferences
+## Key Types
 
-```bash
-# User configuration (already set globally)
-git config --global user.name "Taxgab"
-git config --global user.email "taxgab@gmail.com"
+```typescript
+// Entities
+type Alumno = { id, user_id, nombre, estado, ... }
+type Profesor = { id, user_id, nombre, porcentaje_comision, ... }
+type Clase = { id, user_id, nombre, dia, hora, profesor_id, ... }
+type Pago = { id, user_id, alumno_id, monto, metodo, estado, ... }
+type Configuracion = { id, user_id, cuota_social, moneda, ... }
+type Asistencia = { id, clase_id, alumno_id, nombre_alumno, estado, ... }
+
+// Insert/Update (omit auto fields)
+type AlumnoInsert = Omit<Alumno, 'id' | 'created_at' | 'updated_at' | 'user_id'>
+type AlumnoUpdate = Partial<AlumnoInsert>
+
+// Enums
+type AlumnoEstado = 'activo' | 'inactivo'
+type PagoEstado = 'pagado' | 'pendiente'
+type MetodoPago = 'efectivo' | 'transferencia' | 'mercadopago' | 'tarjeta'
 ```
 
-- **Remote**: `origin` → `https://github.com/Taxgab/go-magic-v2.git`
-- **Auth**: GitHub CLI (gh) con token OAuth
-- **Protocol**: HTTPS
+## Auth Flow
+
+- Middleware protects routes in `src/middleware.ts`
+- Server components use `createClient()` from `@/lib/supabase-server`
+- Client components use `createClient()` from `@/lib/supabase-client`
+- Always check `user` before database operations:
+
+```typescript
+const {
+  data: { user },
+} = await supabase.auth.getUser()
+if (!user) {
+  setError('No hay usuario autenticado')
+  return
+}
+```
+
+## Git Conventions
+
+- Remote: `origin` → `https://github.com/Taxgab/go-magic-v2.git`
+- Commits: conventional commits (`feat:`, `fix:`, `docs:`, `refactor:`)
+- Never push directly to main - use branches + PRs

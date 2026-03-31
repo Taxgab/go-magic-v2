@@ -107,10 +107,7 @@ export default function AlumnosPage() {
           <div className="flex flex-wrap gap-1">
             {actividades.length > 0 ? (
               actividades.map((nombre, idx) => (
-                <span
-                  key={idx}
-                  className="px-2 py-0.5 text-xs bg-primary-100 text-primary-700 rounded-full"
-                >
+                <span key={idx} className="chip chip-primary">
                   {nombre}
                 </span>
               ))

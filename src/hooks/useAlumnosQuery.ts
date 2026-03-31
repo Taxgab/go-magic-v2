@@ -1,10 +1,6 @@
 'use client'
 
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-} from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Alumno, AlumnoInsert, AlumnoUpdate } from '@/types'
 import { fetchAlumnos, fetchAlumnoById } from '@/api/alumnos/queries'
 import { createAlumno, updateAlumno, deleteAlumno } from '@/api/alumnos/mutations'
@@ -38,9 +34,11 @@ interface UseAlumnosQueryReturn {
  * Hook optimizado con React Query para obtener alumnos
  * Incluye caché automática, revalidación y prefetching
  */
-export function useAlumnosQuery(
-  { userId, search, estado }: UseAlumnosQueryOptions
-): UseAlumnosQueryReturn {
+export function useAlumnosQuery({
+  userId,
+  search,
+  estado,
+}: UseAlumnosQueryOptions): UseAlumnosQueryReturn {
   const { data, isLoading, isError, error, refetch } = useQuery<AlumnosData>({
     queryKey: [ALUMNOS_KEY, { userId, search, estado }],
     queryFn: async () => {
@@ -98,7 +96,7 @@ export function useCreateAlumnoMutation(userId: string) {
       return result.data
     },
     // Optimistic Update: actualizar UI antes de confirmar servidor
-    onMutate: async (newAlumno) => {
+    onMutate: async newAlumno => {
       // Cancelar re-fetches en curso
       await queryClient.cancelQueries({ queryKey: [ALUMNOS_KEY] })
 
@@ -106,7 +104,7 @@ export function useCreateAlumnoMutation(userId: string) {
       const previousAlumnos = queryClient.getQueryData<AlumnosData>([ALUMNOS_KEY])
 
       // Optimisticamente agregar el nuevo alumno
-      queryClient.setQueryData<AlumnosData>([ALUMNOS_KEY], (old) => {
+      queryClient.setQueryData<AlumnosData>([ALUMNOS_KEY], old => {
         if (!old) return { alumnos: [], total: 0 }
         return {
           ...old,
@@ -156,18 +154,18 @@ export function useUpdateAlumnoMutation(userId: string) {
       const previousAlumno = queryClient.getQueryData<Alumno>([ALUMNO_DETAIL_KEY, id])
 
       // Optimistic update en lista
-      queryClient.setQueryData<AlumnosData>([ALUMNOS_KEY], (old) => {
+      queryClient.setQueryData<AlumnosData>([ALUMNOS_KEY], old => {
         if (!old) return { alumnos: [], total: 0 }
         return {
           ...old,
           alumnos: old.alumnos.map((a: Alumno) =>
-            a.id === id ? { ...a, ...data } as Alumno : a
+            a.id === id ? ({ ...a, ...data } as Alumno) : a
           ),
         }
       })
 
       // Optimistic update en detalle
-      queryClient.setQueryData<Alumno>([ALUMNO_DETAIL_KEY, id], (old) => {
+      queryClient.setQueryData<Alumno>([ALUMNO_DETAIL_KEY, id], old => {
         if (!old) return old
         return { ...old, ...data } as Alumno
       })
@@ -203,13 +201,13 @@ export function useDeleteAlumnoMutation(userId: string) {
       }
       return alumnoId
     },
-    onMutate: async (alumnoId) => {
+    onMutate: async alumnoId => {
       await queryClient.cancelQueries({ queryKey: [ALUMNOS_KEY] })
 
       const previousAlumnos = queryClient.getQueryData<AlumnosData>([ALUMNOS_KEY])
 
       // Optimistic delete
-      queryClient.setQueryData<AlumnosData>([ALUMNOS_KEY], (old) => {
+      queryClient.setQueryData<AlumnosData>([ALUMNOS_KEY], old => {
         if (!old) return { alumnos: [], total: 0 }
         return {
           ...old,

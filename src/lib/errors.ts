@@ -108,28 +108,13 @@ export function toAppError(error: unknown): AppError {
   }
 
   if (error instanceof Error) {
-    return new AppError(
-      error.message,
-      'UNKNOWN_ERROR',
-      500,
-      false
-    )
+    return new AppError(error.message, 'UNKNOWN_ERROR', 500, false)
   }
 
   // Manejar strings y otros tipos
   if (typeof error === 'string') {
-    return new AppError(
-      error,
-      'UNKNOWN_ERROR',
-      500,
-      false
-    )
+    return new AppError(error, 'UNKNOWN_ERROR', 500, false)
   }
 
-  return new AppError(
-    'Error desconocido',
-    'UNKNOWN_ERROR',
-    500,
-    false
-  )
+  return new AppError('Error desconocido', 'UNKNOWN_ERROR', 500, false)
 }
