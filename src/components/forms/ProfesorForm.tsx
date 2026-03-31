@@ -86,7 +86,7 @@ export function ProfesorForm({ profesor, onSubmit, onCancel, loading = false }: 
         required
       />
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Input
           label="Especialidad"
           type="text"
@@ -116,7 +116,7 @@ export function ProfesorForm({ profesor, onSubmit, onCancel, loading = false }: 
         placeholder="22 dígitos"
       />
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Input
           label="Teléfono"
           type="text"
@@ -135,7 +135,7 @@ export function ProfesorForm({ profesor, onSubmit, onCancel, loading = false }: 
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="label">Fecha de Alta</label>
           <input

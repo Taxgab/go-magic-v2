@@ -102,7 +102,7 @@ export function AlumnoForm({
         required
       />
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Input
           label="DNI"
           type="text"
@@ -184,8 +184,8 @@ export function AlumnoForm({
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="min-w-0">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
           <label className="label">Fecha de Alta</label>
           <input
             type="date"
@@ -196,7 +196,7 @@ export function AlumnoForm({
           />
         </div>
 
-        <div className="min-w-0">
+        <div>
           <label className="label">Estado</label>
           <select
             value={form.estado}
