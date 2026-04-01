@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { createClient } from '@/lib/supabase-client'
 import { Clase, Asistencia } from '@/types'
 import { Send, Users, Calendar, CheckCircle, AlertCircle, Phone, MessageSquare } from 'lucide-react'
@@ -16,12 +16,13 @@ export default function NotificacionesPage() {
   const [messageTemplate, setMessageTemplate] = useState('')
   const [copiedList, setCopiedList] = useState<string | null>(null)
   const [originUrl, setOriginUrl] = useState<string>('')
-  const supabase = createClient()
 
-  const today = new Date()
+  const supabase = useMemo(() => createClient(), [])
+
+  const today = useMemo(() => new Date(), [])
   const todayName = DIAS[today.getDay()]
   const todayLabel = DIAS[today.getDay()]
-  const todayISO = today.toISOString().split('T')[0]
+  const todayISO = useMemo(() => today.toISOString().split('T')[0], [today])
 
   const fetchData = useCallback(async () => {
     try {
@@ -86,7 +87,7 @@ export default function NotificacionesPage() {
     } finally {
       setLoading(false)
     }
-  }, [supabase, selectedClase, todayISO, todayName])
+  }, [supabase, selectedClase, todayName])
 
   useEffect(() => {
     fetchData()
@@ -116,7 +117,7 @@ export default function NotificacionesPage() {
       supabase.removeChannel(channel)
       clearInterval(interval)
     }
-  }, [fetchData])
+  }, [fetchData, supabase, todayISO])
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
