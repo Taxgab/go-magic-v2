@@ -147,7 +147,7 @@ export default function ReportesPage() {
                     <XAxis dataKey="name" />
                     <YAxis />
                     <Tooltip
-                      formatter={(value: number) => [`$${value.toLocaleString()}`, 'Ingresos']}
+                      formatter={value => [`$${Number(value).toLocaleString()}`, 'Ingresos']}
                     />
                     <Bar dataKey="ingresos" fill="#3B82F6" radius={[4, 4, 0, 0]} />
                   </BarChart>
@@ -166,7 +166,9 @@ export default function ReportesPage() {
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        label={({ name, percent }) =>
+                          `${name} ${((percent || 0) * 100).toFixed(0)}%`
+                        }
                         outerRadius={80}
                         fill="#8884d8"
                         dataKey="value"
@@ -176,7 +178,7 @@ export default function ReportesPage() {
                         ))}
                       </Pie>
                       <Tooltip
-                        formatter={(value: number) => [`$${value.toLocaleString()}`, 'Ingresos']}
+                        formatter={value => [`$${Number(value).toLocaleString()}`, 'Ingresos']}
                       />
                       <Legend />
                     </PieChart>
